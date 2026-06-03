@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rede de Atendimento Hapvida – RMSP</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --primary:#003087;--primary-dark:#001f5c;--accent:#e8720c;
+  --bg:#f0f2f5;--card:#fff;--border:#e2e6ea;
+  --text:#1a202c;--text2:#6b7280;--text3:#9ca3af;
+  --success:#0f6e56;--success-bg:#e1f5ee;
+  --info:#185fa5;--info-bg:#e6f1fb;
+  --warn:#854f0b;--warn-bg:#faeeda;
+  --radius:10px;--gap:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+a{color:inherit;text-decoration:none}
+
+/* Layout */
+.wrap{max-width:1280px;margin:0 auto;padding:20px}
+
+/* Header */
+.hdr{background:var(--primary);color:#fff;border-radius:var(--radius);padding:20px 24px;margin-bottom:var(--gap);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.logo-box{display:none}
+.hdr h1{font-size:18px;font-weight:600;margin-bottom:2px}
+.hdr p{font-size:12px;opacity:.7}
+.badge-vig{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;margin-left:8px}
+
+/* Filters bar */
+.filters-bar{background:var(--card);border-radius:var(--radius);padding:14px 20px;margin-bottom:var(--gap);box-shadow:var(--shadow);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.fg{display:flex;align-items:center;gap:7px}
+.fg label{font-size:12px;color:var(--text2);white-space:nowrap;font-weight:500}
+.fg select,.fg input{padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text);font-size:13px;outline:none}
+.fg select:focus,.fg input:focus{border-color:var(--primary)}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap input{width:100%;padding-left:30px}
+.search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px}
+.btn-reset{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--text2);font-size:12px;cursor:pointer;font-weight:500}
+.btn-reset:hover{background:var(--bg);color:var(--text)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:var(--radius);padding:6px;margin-bottom:var(--gap);box-shadow:var(--shadow)}
+.tab{flex:1;padding:8px 12px;border:none;border-radius:7px;background:transparent;color:var(--text2);font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.tab:hover{background:var(--bg);color:var(--text)}
+.tab.active{background:var(--primary);color:#fff}
+.tab-count{font-size:11px;padding:1px 7px;border-radius:10px;background:rgba(255,255,255,.25);font-weight:600}
+.tab:not(.active) .tab-count{background:var(--bg);color:var(--text2)}
+
+/* KPIs */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-bottom:var(--gap)}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:3px solid transparent}
+.kpi.total{border-top-color:var(--primary)}
+.kpi.hosp{border-top-color:#e55300}
+.kpi.lab{border-top-color:#1d9e75}
+.kpi.cid{border-top-color:#7f77dd}
+.kpi-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin-bottom:6px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--text);line-height:1}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* Charts */
+.chart-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.chart-card h3{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.chart-card canvas{max-height:220px}
+
+/* Table */
+.table-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.table-hdr{padding:16px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.table-hdr h3{font-size:13px;font-weight:600;color:var(--text)}
+.count-badge{font-size:11px;padding:3px 10px;border-radius:10px;background:var(--bg);color:var(--text2);font-weight:500}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--bg);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--text)}
+th.sorted{color:var(--primary)}
+td{padding:10px 14px;border-bottom:1px solid #f5f5f5;color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafbfc}
+.td-nome{font-weight:500}
+.td-cidade{color:var(--text2);font-size:12px}
+
+/* Pills / badges */
+.pill-yes{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--success-bg);color:var(--success);font-size:11px;font-weight:700}
+.pill-no{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#f3f4f6;color:#d1d5db;font-size:12px}
+.tipo-hosp{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--info-bg);color:var(--info);font-weight:600}
+.tipo-lab{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--success-bg);color:var(--success);font-weight:600}
+.cob-h{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--info-bg);color:var(--info);font-weight:600;margin:1px}
+.cob-ps{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--warn-bg);color:var(--warn);font-weight:600;margin:1px}
+.cob-m{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:#fbeaf0;color:#993556;font-weight:600;margin:1px}
+.dash{color:var(--text3)}
+
+/* No results */
+.no-results{padding:40px;text-align:center;color:var(--text2)}
+.no-results p{font-size:15px;margin-top:8px}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border);font-size:12px;color:var(--text2)}
+.page-btns{display:flex;gap:4px}
+.page-btn{padding:4px 10px;border:1px solid var(--border);border-radius:5px;background:#fff;cursor:pointer;font-size:12px;color:var(--text2)}
+.page-btn:hover{background:var(--bg)}
+.page-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.page-btn:disabled{opacity:.4;cursor:default}
+
+/* Legend */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:11px;color:var(--text2)}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+
+/* Footer */
+.footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);margin-top:8px}
+
+/* Responsive */
+@media(max-width:1024px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.kpi-row{grid-template-columns:1fr 1fr}.chart-row{grid-template-columns:1fr}.hdr{flex-direction:column;align-items:flex-start}.tabs{flex-wrap:wrap}}
+@media print{.filters-bar,.tabs{display:none}.chart-row{grid-template-columns:1fr 1fr}.table-card{box-shadow:none;border:1px solid var(--border)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div>
+        <h1>Rede de Atendimento Hapvida NotreDame <span class="badge-vig">Vigência 01/06/2026</span></h1>
+        <p>Região Metropolitana de São Paulo — Hospitais e Laboratórios credenciados</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="fg">
+      <label>Produto</label>
+      <select id="f-produto">
+        <option value="all">Todos os produtos</option>
+        <option value="nm">Nosso Médico RMSP</option>
+        <option value="up">Smart UP</option>
+        <option value="fx">Smart Flex</option>
+        <option value="pr">Smart Prime</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Cidade</label>
+      <select id="f-cidade"><option value="all">Todas as cidades</option></select>
+    </div>
+    <div class="fg" style="flex:1;min-width:200px">
+      <label>Buscar</label>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="f-search" placeholder="Nome do prestador...">
+      </div>
+    </div>
+    <button class="btn-reset" onclick="resetFilters()">↺ Limpar</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="todos" onclick="setTab('todos')">🏥 Todos <span class="tab-count" id="tc-todos">0</span></button>
+    <button class="tab" data-tab="hosp" onclick="setTab('hosp')">🏨 Hospitais <span class="tab-count" id="tc-hosp">0</span></button>
+    <button class="tab" data-tab="lab" onclick="setTab('lab')">🔬 Laboratórios <span class="tab-count" id="tc-lab">0</span></button>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi total"><div class="kpi-label">Total de prestadores</div><div class="kpi-val" id="kpi-total">–</div><div class="kpi-sub">na seleção atual</div></div>
+    <div class="kpi hosp"><div class="kpi-label">Hospitais</div><div class="kpi-val" id="kpi-hosp">–</div><div class="kpi-sub">na seleção atual</div></div>
+    <div class="kpi lab"><div class="kpi-label">Laboratórios</div><div class="kpi-val" id="kpi-lab">–</div><div class="kpi-sub">na seleção atual</div></div>
+    <div class="kpi cid"><div class="kpi-label">Cidades atendidas</div><div class="kpi-val" id="kpi-cid">–</div><div class="kpi-sub">na seleção atual</div></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-row">
+    <div class="chart-card">
+      <h3>Distribuição por tipo</h3>
+      <canvas id="chart-tipo"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Cobertura por produto</h3>
+      <canvas id="chart-produto"></canvas>
+    </div>
+    <div class="chart-card">
+      <h3>Top 10 cidades</h3>
+      <canvas id="chart-cidades"></canvas>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-hdr">
+      <h3>Lista de prestadores</h3>
+      <span class="count-badge" id="count-badge">0 prestadores</span>
+    </div>
+    <div class="legend" style="padding:0 20px 12px">
+      <span class="legend-item"><span class="legend-dot" style="background:var(--info-bg);border:1px solid var(--info)"></span> Hospital (H)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:var(--warn-bg);border:1px solid var(--warn)"></span> Pronto-Socorro (PS)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#fbeaf0;border:1px solid #993556"></span> Maternidade (M)</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('c')" id="th-c">Cidade <span id="s-c"></span></th>
+            <th onclick="sortBy('n')" id="th-n">Prestador <span id="s-n"></span></th>
+            <th>Tipo</th>
+            <th onclick="sortBy('nm')" style="text-align:center" title="Nosso Médico RMSP">NM <span id="s-nm"></span></th>
+            <th onclick="sortBy('up')" style="text-align:center" title="Smart UP">UP <span id="s-up"></span></th>
+            <th onclick="sortBy('fx')" style="text-align:center" title="Smart Flex">Flex <span id="s-fx"></span></th>
+            <th onclick="sortBy('pr')" style="text-align:center" title="Smart Prime">Prime <span id="s-pr"></span></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="no-results" id="no-results" style="display:none">
+        <div style="font-size:32px">🔍</div>
+        <p>Nenhum prestador encontrado para os filtros selecionados.</p>
+      </div>
+    </div>
+    <div class="pagination">
+      <span id="pag-info"></span>
+      <div class="page-btns" id="pag-btns"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Responsável Técnico: Dr. Rodolfo Pires de Albuquerque – CRM 40137 &nbsp;|&nbsp;
+    As informações estão sujeitas a alterações. Consulte os canais oficiais da operadora.
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const HOSP = [
+  {c:"São Paulo",n:"Hospital Nossa Sra Rosario",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital Intermedica Analia Franco",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital Bosque da Saude",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital e Maternidade Salvalus",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"São Paulo",n:"API Assistencia Psiquiatrica",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"São Paulo",n:"CEMA Hospital",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital Fundacao Oswaldo Ramos",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"São Paulo",n:"Hospital de Olhos Paulista",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"São Paulo",n:"IBCC Inst Brasileiro C Cancer",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"São Paulo",n:"Hospital GRAACC Inst de Oncologia",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"São Paulo",n:"Hospital Santa Marcelina",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"São Paulo",n:"Pronto Atendimento São Miguel",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"São Paulo",n:"Pronto Atendimento Zona Sul",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"São Paulo",n:"Pronto Atendimento Itaquera",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"São Paulo",n:"Pronto Atendimento São Gabriel",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"São Paulo",n:"Pronto Atendimento Barra Funda",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"São Paulo",n:"Hospital Sant Patrick (Portinari)",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"São Paulo",n:"Hospital e Maternidade Cruz Azul",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"São Paulo",n:"Hospital Albert Sabin",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital e Maternidade Vidas",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital Santa Izildinha",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H",pr:"H"}},
+  {c:"São Paulo",n:"Hospital Santa Clara",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital Central Leste",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"São Paulo",n:"Hospital das Clinicas da FMUSP",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital e Maternidade 8 de Maio",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Casa de Saude Santa Rita",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital SEPACO",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"São Paulo",n:"Hospital Dom Alvarenga",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital São Miguel",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital Rubem Berta",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-PS"}},
+  {c:"São Paulo",n:"Hospital Vidas Paranagua",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-PS"}},
+  {c:"São Bernardo do Campo",n:"Hospital São Bernardo",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"São Bernardo do Campo",n:"Hospital Notrecare ABC",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Guarulhos",n:"Hospital e Maternidade Keila",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Guarulhos",n:"Hospital Stella Maris",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H-PS"}},
+  {c:"Guarulhos",n:"CEMA Hospital - Guarulhos",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H",fx:"H",pr:"H"}},
+  {c:"Guarulhos",n:"Benvista Oftamologia",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H",fx:"H",pr:"H"}},
+  {c:"Santo André",n:"Benvista Oftamologia",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H",fx:"H",pr:"H"}},
+  {c:"Santo André",n:"Pronto Atendimento Santo Andre",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Santo André",n:"Hosp e Maternidade Christovao da Gama",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"Santo André",n:"Hosp e Maternidade São Jose do ABC",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-PS"}},
+  {c:"Santo André",n:"Hosp e Maternidade BP Santo Andre",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-PS"}},
+  {c:"Osasco",n:"Hospital Cruzeiro do Sul",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Osasco",n:"CEMA Hospital - Osasco",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Osasco",n:"Pronto Atendimento Osasco",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Osasco",n:"Benvista Oftamologia",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H"}},
+  {c:"Diadema",n:"Benvista Oftamologia",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H",fx:"H",pr:"H"}},
+  {c:"Diadema",n:"Pronto Atendimento Diadema",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Mauá",n:"Santa Casa de Mauá",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-M",up:"H-PS",fx:"H-PS",pr:"H-M-PS"}},
+  {c:"Mauá",n:"Pronto Atendimento Mauá",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Mogi das Cruzes",n:"Hospital Santana Mogi",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-M-PS"}},
+  {c:"Mogi das Cruzes",n:"Pronto Atendimento Mogi das Cruzes",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Mogi das Cruzes",n:"Hosp e Maternidade Mogi Mater",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Suzano",n:"Hospital Saint Nicholas",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Suzano",n:"Hospital Santa Maria de Suzano",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-M-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Cotia",n:"Pronto Atendimento Cotia",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Itapevi",n:"Hospital Nova Vida",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Itapevi",n:"Pronto Atendimento Itapevi",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"São Caetano do Sul",n:"Pronto Atendimento São Caetano",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"São Caetano do Sul",n:"Hospital Santa Ana",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-PS"}},
+  {c:"Ribeirão Pires",n:"Pronto Atendimento Ribeirao Pires",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Ribeirão Pires",n:"Hospital Ribeirao Pires",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H",pr:"H"}},
+  {c:"Cajamar",n:"Pronto Atendimento Polvilho",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Jandira",n:"Pronto Atendimento Nova Vida - Jandira I",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Arujá",n:"Pronto Atendimento Aruja",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Arujá",n:"Hosp e Maternidade Ipiranga",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-M-PS"}},
+  {c:"Caieiras",n:"Pronto Atendimento Caieiras",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Caieiras",n:"AMICO Saude",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-PS"}},
+  {c:"Guararema",n:"Santa Casa de Guararema",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Americana",n:"Hospital São Lucas",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Americana",n:"Hospital São Francisco Americana",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Americana",n:"Hospital Seara",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Atibaia",n:"Hospital Albert Sabin",nm:0,up:1,fx:1,pr:1,cob:{nm:"–",up:"PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Atibaia",n:"Hospital Novo Atibaia",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-M-PS"}},
+  {c:"Barueri",n:"CEMA Hospital - Barueri",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H",fx:"H",pr:"H"}},
+  {c:"Barueri",n:"Pronto Atendimento Barueri",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Barueri",n:"Hospitalis",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H",pr:"H"}},
+  {c:"Campinas",n:"Hospital Renascenca Campinas",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Campinas",n:"Campinas Day Hospital",nm:1,up:1,fx:1,pr:1,cob:{nm:"H",up:"H",fx:"H",pr:"H"}},
+  {c:"Campinas",n:"Hospital Beneficencia Portuguesa",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"Campinas",n:"Hospital Irmaos Penteado",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"Campinas",n:"Hospital Santa Tereza",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"Campinas",n:"Hospital Madre Theodora Campinas",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-M-PS"}},
+  {c:"Campinas",n:"Hosp e Maternidade Celso Pierro",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-M-PS"}},
+  {c:"Campinas",n:"Hospital Boldrini Campinas",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-PS"}},
+  {c:"Carapicuíba",n:"Pronto Atendimento Carapicuiba",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Jundiaí",n:"Hospital Paulo Sacramento",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Jundiaí",n:"Hospital Santa Elisa",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H-M-PS"}},
+  {c:"Santos",n:"Casa de Saude de Santos",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-M-PS"}},
+  {c:"Santos",n:"Hospital Frei Galvão",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Santos",n:"Hospital e Ps Infantil Gonzaga",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H",fx:"H",pr:"H-PS"}},
+  {c:"Santos",n:"Hospital São Lucas de Santos",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-M-PS",up:"H-PS",fx:"H-M-PS",pr:"H-PS"}},
+  {c:"São Vicente",n:"Pronto Atendimento São Vicente",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Sorocaba",n:"Hospital e Maternidade Modelo",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Sorocaba",n:"Hospital Notrecare Sorocaba",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Sorocaba",n:"GPACI",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-PS",fx:"H-PS",pr:"H-PS"}},
+  {c:"Taboão da Serra",n:"Hospital Family",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H-M-PS",fx:"H-M-PS",pr:"H-M-PS"}},
+  {c:"Taboão da Serra",n:"CEMA Hospital - Taboao",nm:1,up:1,fx:1,pr:1,cob:{nm:"H-PS",up:"H",fx:"H",pr:"H"}},
+  {c:"Taboão da Serra",n:"Pronto Atendimento Taboao da Serra",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Valinhos",n:"Hospital e Maternidade Galileo",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H"}},
+  {c:"Valinhos",n:"Santa Casa de Valinhos",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"Várzea Paulista",n:"Pronto Atendimento Varzea Paulista",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Vinhedo",n:"Santa Casa de Vinhedo",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"Itu",n:"Pronto Atendimento Itu",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
+  {c:"Praia Grande",n:"Casa de Saude de Santos (PA)",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
+  {c:"Santa Bárbara d'Oeste",n:"Hospital Santa Barbara",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H"}},
+].map(d=>({...d,tipo:"hosp"}));
+
+const LAB = [
+  {c:"São Paulo",n:"Centro Clinico Santana - Unid 2",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Clinica Diagnostico Zona Oeste",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Itaim Bibi",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Joao Dias",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Mooca",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Parque do Carmo",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Penha Guaiauna",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Santa Cruz",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Vila Carrao",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Barra Funda",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Notrelabs Tatuape",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Notrelabs Qualivida Angelica",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Notrelabs Santana",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Notrelabs Herminio Lemos",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Diagnostico Zona Norte",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Unidade Avancada Salvalus",nm:1,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Clinica Diagnostico Autodromo",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Lavoisier",nm:0,up:0,fx:1,pr:1},
+  {c:"São Paulo",n:"Instituto Jo Clemente",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Banco de Sangue de São Paulo",nm:0,up:0,fx:1,pr:1},
+  {c:"São Paulo",n:"Femme - Laboratorio da Mulher",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"ISA Home Lab",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Lab Pat Dr Ferdinando",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Genoa/LPCM",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Senne Liquor Diagnostico",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Laboratorio Locus",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Pathos Diagnosticos Medicos",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Nimgenetics",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"CDB Diagnosticos",nm:0,up:1,fx:1,pr:1},
+  {c:"São Paulo",n:"Laborhclin Boturussu",nm:0,up:0,fx:1,pr:1},
+  {c:"São Paulo",n:"Autologus Laboratorio",nm:0,up:0,fx:1,pr:1},
+  {c:"São Paulo",n:"Lab Anal Clin Oswaldo Cruz",nm:0,up:0,fx:1,pr:1},
+  {c:"São Paulo",n:"Delboni Auriemo",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Delboni Santa Paula",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Lavoisier Casa Verde",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Lavoisier Center Norte",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Lavoisier Guarapiranga",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Lavoisier Itaim Bibi",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Lavoisier Republica",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Lavoisier Santana",nm:0,up:0,fx:0,pr:1},
+  {c:"São Paulo",n:"Lavoisier Shop Metro Tatuape",nm:0,up:0,fx:0,pr:1},
+  {c:"Guarulhos",n:"Delboni Auriemo Guarulhos",nm:0,up:1,fx:1,pr:1},
+  {c:"Guarulhos",n:"CJO Recursos Diagnosticos",nm:0,up:0,fx:0,pr:1},
+  {c:"Guarulhos",n:"Lavoisier Guarulhos 2",nm:0,up:0,fx:0,pr:1},
+  {c:"São Bernardo do Campo",n:"Diagnostico Notrelabs Lucas Garcez",nm:1,up:1,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Delboni Auriemo SBC",nm:0,up:1,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Lab Hormon",nm:0,up:1,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Pathos Diagnosticos Medicos",nm:0,up:1,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Exame Brasil",nm:0,up:0,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Tecnolab",nm:0,up:0,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Tecnolab: Unidade VIII",nm:0,up:0,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Fleming",nm:0,up:0,fx:0,pr:1},
+  {c:"São Bernardo do Campo",n:"Diagnostico Rudge Ramos",nm:0,up:0,fx:0,pr:1},
+  {c:"São Caetano do Sul",n:"Diag Santa Paula CM São Cae",nm:0,up:1,fx:1,pr:1},
+  {c:"São Caetano do Sul",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
+  {c:"São Caetano do Sul",n:"Lavoisier",nm:0,up:0,fx:1,pr:1},
+  {c:"São Caetano do Sul",n:"Exame Brasil",nm:0,up:0,fx:1,pr:1},
+  {c:"São Caetano do Sul",n:"ISA Lab",nm:0,up:0,fx:0,pr:1},
+  {c:"Santo André",n:"Centro Clinico Santo Andre III",nm:1,up:1,fx:1,pr:1},
+  {c:"Santo André",n:"Lab Eletivo UN AV Santo Andre",nm:0,up:1,fx:1,pr:1},
+  {c:"Santo André",n:"Star Imagem",nm:0,up:1,fx:1,pr:1},
+  {c:"Santo André",n:"Laboratorio Labor Clin",nm:0,up:1,fx:1,pr:1},
+  {c:"Santo André",n:"Lab Hormon",nm:0,up:1,fx:1,pr:1},
+  {c:"Santo André",n:"Tecnolab Unidade",nm:0,up:1,fx:1,pr:1},
+  {c:"Santo André",n:"Fleming",nm:0,up:0,fx:0,pr:1},
+  {c:"Santo André",n:"Miranda Wiermann Diag",nm:0,up:0,fx:0,pr:1},
+  {c:"Americana",n:"Notrelabs Americana",nm:0,up:1,fx:1,pr:1},
+  {c:"Americana",n:"Notrelabs Paulista",nm:0,up:1,fx:1,pr:1},
+  {c:"Americana",n:"Centro de Diag Anatomia Patologica",nm:0,up:1,fx:1,pr:1},
+  {c:"Americana",n:"Instituto Anatomia Patologia",nm:0,up:1,fx:1,pr:1},
+  {c:"Americana",n:"Laboratorio Pasteur",nm:0,up:0,fx:0,pr:1},
+  {c:"Arujá",n:"Centro Clinico Aruja",nm:1,up:1,fx:1,pr:1},
+  {c:"Arujá",n:"Cytolab",nm:0,up:1,fx:1,pr:1},
+  {c:"Barueri",n:"Centro Clinico Alphaville",nm:1,up:1,fx:1,pr:1},
+  {c:"Barueri",n:"Lavoisier Alphaville - Rio Negro",nm:0,up:1,fx:1,pr:1},
+  {c:"Barueri",n:"Sabin Diagnostico e Saude",nm:1,up:1,fx:1,pr:1},
+  {c:"Barueri",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
+  {c:"Campinas",n:"DMS Burnier",nm:0,up:1,fx:1,pr:1},
+  {c:"Campinas",n:"Sollutio",nm:0,up:1,fx:1,pr:1},
+  {c:"Campinas",n:"Lab Pat Clin A Frealdo",nm:0,up:1,fx:1,pr:1},
+  {c:"Campinas",n:"Senne Liquor Diagnostico",nm:0,up:1,fx:1,pr:1},
+  {c:"Campinas",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
+  {c:"Campinas",n:"Confiance Medicina Diagnostica",nm:0,up:1,fx:1,pr:1},
+  {c:"Campinas",n:"Labclinicas Barreto Leme",nm:0,up:0,fx:0,pr:1},
+  {c:"Cotia",n:"Diagnostico Cotia I",nm:1,up:1,fx:1,pr:1},
+  {c:"Cotia",n:"Delboni Auriemo Granja Viana",nm:0,up:1,fx:1,pr:1},
+  {c:"Cotia",n:"Santa Clara Laboratorio Medico",nm:0,up:1,fx:1,pr:1},
+  {c:"Cotia",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
+  {c:"Cotia",n:"Lavoisier Cotia",nm:0,up:0,fx:0,pr:1},
+  {c:"Diadema",n:"Diagnostico Diadema",nm:1,up:1,fx:1,pr:1},
+  {c:"Diadema",n:"Lavoisier Diadema",nm:0,up:1,fx:1,pr:1},
+  {c:"Diadema",n:"Tecnolab: Unidade II",nm:0,up:0,fx:0,pr:1},
+  {c:"Mogi das Cruzes",n:"Notrelabs Mogi Central",nm:1,up:1,fx:1,pr:1},
+  {c:"Mogi das Cruzes",n:"Bio Campos Anal Clin",nm:0,up:1,fx:1,pr:1},
+  {c:"Mogi das Cruzes",n:"Cytolab Cesar de Souza",nm:0,up:1,fx:1,pr:1},
+  {c:"Mogi das Cruzes",n:"Unid Mogiana Diag Imagem",nm:0,up:1,fx:1,pr:1},
+  {c:"Osasco",n:"Notrelabs Osasco - Autonomista",nm:1,up:1,fx:1,pr:1},
+  {c:"Osasco",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
+  {c:"Osasco",n:"Endoplus Diagnosticos",nm:0,up:0,fx:0,pr:1},
+  {c:"Santos",n:"Notrelabs Santos",nm:1,up:1,fx:1,pr:1},
+  {c:"Santos",n:"Diagnos",nm:0,up:1,fx:1,pr:1},
+  {c:"Santos",n:"Delboni Auriemo Santos",nm:0,up:1,fx:1,pr:1},
+  {c:"Santos",n:"Laboratorio Gonzaga",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Diagnostico Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Notrelabs Ipanema Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Biolabor de Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Cardio Vida Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Sollutio",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Labormed Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Lab Eletivo Hospital Family",nm:1,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Notrelabs Taboao da Serra",nm:1,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Bioclinic Taboao da Serra",nm:0,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Lavoisier Shopping Taboão",nm:0,up:1,fx:1,pr:1},
+  {c:"Mauá",n:"Diag Bandeirantes Mauá",nm:0,up:1,fx:1,pr:1},
+  {c:"Mauá",n:"Lavoisier Shopping Mauá",nm:0,up:1,fx:1,pr:1},
+  {c:"Mauá",n:"Biocenter",nm:0,up:1,fx:1,pr:1},
+  {c:"Ribeirão Pires",n:"Diag Ribeirão Pires",nm:0,up:1,fx:1,pr:1},
+  {c:"Ribeirão Pires",n:"Vital Lab",nm:0,up:1,fx:1,pr:1},
+  {c:"Ribeirão Pires",n:"IPAC Laboratorio e Imagem",nm:0,up:1,fx:1,pr:1},
+  {c:"Ribeirão Pires",n:"Tecnolab: Unidade IV",nm:0,up:1,fx:1,pr:1},
+  {c:"Suzano",n:"Cytolab Suzano Centro",nm:0,up:1,fx:1,pr:1},
+  {c:"Suzano",n:"Unid Mogiana Diag Imagem",nm:0,up:1,fx:1,pr:1},
+  {c:"Vinhedo",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
+  {c:"Jundiaí",n:"Laboratorio Cardoso de Almeida",nm:0,up:1,fx:1,pr:1},
+  {c:"Jundiaí",n:"Lab Anal Clin Anchieta",nm:0,up:1,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Lab Hormon SBC",nm:0,up:1,fx:1,pr:1},
+].map(d=>({...d,tipo:"lab",cob:null}));
+
+const ALL = [...HOSP, ...LAB];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let state = {tab:"todos", produto:"all", cidade:"all", search:"", sortKey:"c", sortDir:1, page:0};
+const PAGE_SIZE = 50;
+let charts = {};
+
+// ─── FILTER ──────────────────────────────────────────────────────────────────
+function filtered(){
+  const {tab, produto, cidade, search} = state;
+  return ALL.filter(d=>{
+    if(tab==="hosp" && d.tipo!=="hosp") return false;
+    if(tab==="lab"  && d.tipo!=="lab")  return false;
+    if(produto!=="all"){
+      const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr};
+      if(!map[produto]) return false;
+    }
+    if(cidade!=="all" && d.c!==cidade) return false;
+    if(search && !d.n.toLowerCase().includes(search)) return false;
+    return true;
+  });
+}
+
+function sorted(data){
+  const k = state.sortKey;
+  return [...data].sort((a,b)=>{
+    let va=a[k]??0, vb=b[k]??0;
+    if(typeof va==="string") return va.localeCompare(vb,"pt-BR")*state.sortDir;
+    return (va-vb)*state.sortDir;
+  });
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function render(){
+  const data = filtered();
+  const sdata = sorted(data);
+  const hosps = data.filter(d=>d.tipo==="hosp").length;
+  const labs  = data.filter(d=>d.tipo==="lab").length;
+  const cids  = new Set(data.map(d=>d.c)).size;
+
+  // KPIs
+  document.getElementById("kpi-total").textContent = data.length;
+  document.getElementById("kpi-hosp").textContent  = hosps;
+  document.getElementById("kpi-lab").textContent   = labs;
+  document.getElementById("kpi-cid").textContent   = cids;
+
+  // Tab counts
+  const allC  = filtered_by_tab("todos").length;
+  const hospC = filtered_by_tab("hosp").length;
+  const labC  = filtered_by_tab("lab").length;
+  document.getElementById("tc-todos").textContent = allC;
+  document.getElementById("tc-hosp").textContent  = hospC;
+  document.getElementById("tc-lab").textContent   = labC;
+
+  // Table
+  const start = state.page * PAGE_SIZE;
+  const pageData = sdata.slice(start, start+PAGE_SIZE);
+  const tbody = document.getElementById("tbody");
+  const noR   = document.getElementById("no-results");
+
+  if(!data.length){
+    tbody.innerHTML=""; noR.style.display="block";
+  } else {
+    noR.style.display="none";
+    tbody.innerHTML = pageData.map(d=>{
+      const tipo = d.tipo==="hosp"
+        ? `<span class="tipo-hosp">Hospital</span>`
+        : `<span class="tipo-lab">Lab</span>`;
+      const cobHtml = d.tipo==="hosp" && d.cob && state.produto!=="all"
+        ? buildCob(d.cob[state.produto]) : "";
+      return `<tr>
+        <td>
+          <div style="font-weight:500;font-size:13px">${d.c}</div>
+        </td>
+        <td>
+          <div class="td-nome">${d.n}</div>
+          ${cobHtml?`<div style="margin-top:3px">${cobHtml}</div>`:""}
+        </td>
+        <td>${tipo}</td>
+        <td style="text-align:center">${d.nm?yn(1):yn(0)}</td>
+        <td style="text-align:center">${d.up?yn(1):yn(0)}</td>
+        <td style="text-align:center">${d.fx?yn(1):yn(0)}</td>
+        <td style="text-align:center">${d.pr?yn(1):yn(0)}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  // Count badge
+  document.getElementById("count-badge").textContent = `${data.length} prestador${data.length!==1?"es":""}`;
+
+  // Pagination
+  renderPagination(data.length);
+
+  // Sort indicators
+  ["c","n","nm","up","fx","pr"].forEach(k=>{
+    const el = document.getElementById("s-"+k);
+    if(el) el.textContent = state.sortKey===k ? (state.sortDir===1?" ▲":" ▼") : "";
+  });
+
+  // Charts
+  updateCharts(data);
+}
+
+function filtered_by_tab(tab){
+  const {produto, cidade, search} = state;
+  return ALL.filter(d=>{
+    if(tab==="hosp" && d.tipo!=="hosp") return false;
+    if(tab==="lab"  && d.tipo!=="lab")  return false;
+    if(produto!=="all"){const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr};if(!map[produto])return false;}
+    if(cidade!=="all"&&d.c!==cidade)return false;
+    if(search&&!d.n.toLowerCase().includes(search))return false;
+    return true;
+  });
+}
+
+function yn(v){return v?`<span class="pill-yes">✓</span>`:`<span class="pill-no">–</span>`;}
+
+function buildCob(v){
+  if(!v||v==="–") return `<span style="color:#ccc;font-size:11px">–</span>`;
+  return v.split("-").map(p=>{
+    if(p==="H")  return `<span class="cob-h">H</span>`;
+    if(p==="PS") return `<span class="cob-ps">PS</span>`;
+    if(p==="M")  return `<span class="cob-m">M</span>`;
+    return "";
+  }).join("");
+}
+
+function renderPagination(total){
+  const pages = Math.ceil(total/PAGE_SIZE);
+  const p = state.page;
+  document.getElementById("pag-info").textContent =
+    total===0 ? "" : `Mostrando ${p*PAGE_SIZE+1}–${Math.min((p+1)*PAGE_SIZE,total)} de ${total}`;
+  const btns = document.getElementById("pag-btns");
+  if(pages<=1){btns.innerHTML="";return;}
+  let html = `<button class="page-btn" onclick="goPage(${p-1})" ${p===0?"disabled":""}>‹</button>`;
+  for(let i=0;i<pages;i++){
+    if(pages>7 && i>1 && i<pages-2 && Math.abs(i-p)>1){
+      if(i===2||i===pages-3) html+=`<span style="padding:4px 6px;color:var(--text3)">…</span>`;
+      continue;
+    }
+    html+=`<button class="page-btn${i===p?" active":""}" onclick="goPage(${i})">${i+1}</button>`;
+  }
+  html+=`<button class="page-btn" onclick="goPage(${p+1})" ${p>=pages-1?"disabled":""}>›</button>`;
+  btns.innerHTML=html;
+}
+
+function goPage(p){state.page=p;render();}
+
+// ─── CHARTS ──────────────────────────────────────────────────────────────────
+function updateCharts(data){
+  // Tipo doughnut
+  const hospN = data.filter(d=>d.tipo==="hosp").length;
+  const labN  = data.filter(d=>d.tipo==="lab").length;
+  updateOrCreate("chart-tipo","doughnut",{
+    labels:["Hospitais","Laboratórios"],
+    datasets:[{data:[hospN,labN],backgroundColor:["#e55300","#1d9e75"],borderWidth:2,borderColor:"#fff"}]
+  },{plugins:{legend:{position:"bottom",labels:{font:{size:12},padding:12,boxWidth:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} (${Math.round(c.parsed/(hospN+labN||1)*100)}%)`}}}});
+
+  // Produto bar
+  const prods = [
+    {label:"Nosso Médico",key:"nm",color:"#003087"},
+    {label:"Smart UP",key:"up",color:"#2563eb"},
+    {label:"Smart Flex",key:"fx",color:"#0f6e56"},
+    {label:"Smart Prime",key:"pr",color:"#e55300"},
+  ];
+  updateOrCreate("chart-produto","bar",{
+    labels: prods.map(p=>p.label),
+    datasets:[{
+      label:"Prestadores",
+      data: prods.map(p=>data.filter(d=>d[p.key]).length),
+      backgroundColor: prods.map(p=>p.color),
+      borderRadius:5
+    }]
+  },{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:20}},x:{ticks:{font:{size:11}}}}});
+
+  // Top cidades
+  const cityCount = {};
+  data.forEach(d=>{cityCount[d.c]=(cityCount[d.c]||0)+1;});
+  const sorted = Object.entries(cityCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  updateOrCreate("chart-cidades","bar",{
+    labels: sorted.map(e=>e[0].length>14?e[0].substring(0,13)+"…":e[0]),
+    datasets:[{
+      label:"Prestadores",
+      data: sorted.map(e=>e[1]),
+      backgroundColor:"#7f77dd",
+      borderRadius:4,
+    }]
+  },{indexAxis:"y",plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{ticks:{font:{size:11}}}},maintainAspectRatio:false},{height:220});
+}
+
+function updateOrCreate(id, type, data, options={}, extra={}){
+  const canvas = document.getElementById(id);
+  if(extra.height) canvas.parentElement.style.height = extra.height+"px";
+  if(charts[id]){
+    charts[id].data = data;
+    charts[id].options = {responsive:true, maintainAspectRatio:type!=="bar"||!extra.height, animation:false, ...options};
+    charts[id].update("none");
+  } else {
+    charts[id] = new Chart(canvas.getContext("2d"),{
+      type, data,
+      options:{responsive:true, maintainAspectRatio:type!=="bar"||!extra.height, animation:{duration:400}, ...options}
+    });
+  }
+}
+
+// ─── SETUP ───────────────────────────────────────────────────────────────────
+function populateCidades(){
+  const sel = document.getElementById("f-cidade");
+  const cidades = [...new Set(ALL.map(d=>d.c))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  cidades.forEach(c=>{
+    const o = document.createElement("option");
+    o.value=c; o.textContent=c;
+    sel.appendChild(o);
+  });
+}
+
+function setTab(t){
+  state.tab=t; state.page=0;
+  document.querySelectorAll(".tab").forEach(el=>el.classList.toggle("active",el.dataset.tab===t));
+  render();
+}
+
+function sortBy(k){
+  if(state.sortKey===k) state.sortDir*=-1;
+  else {state.sortKey=k; state.sortDir=1;}
+  state.page=0;
+  render();
+}
+
+function resetFilters(){
+  document.getElementById("f-produto").value="all";
+  document.getElementById("f-cidade").value="all";
+  document.getElementById("f-search").value="";
+  state.produto="all"; state.cidade="all"; state.search=""; state.page=0;
+  render();
+}
+
+document.getElementById("f-produto").addEventListener("change",e=>{state.produto=e.target.value;state.page=0;render();});
+document.getElementById("f-cidade").addEventListener("change",e=>{state.cidade=e.target.value;state.page=0;render();});
+document.getElementById("f-search").addEventListener("input",e=>{state.search=e.target.value.toLowerCase().trim();state.page=0;render();});
+
+populateCidades();
+render();
+</script>
+</body>
+</html>
