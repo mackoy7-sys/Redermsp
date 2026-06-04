@@ -208,10 +208,10 @@ tr:hover td{background:#fafbfc}
             <th onclick="sortBy('c')" id="th-c">Cidade <span id="s-c"></span></th>
             <th onclick="sortBy('n')" id="th-n">Prestador <span id="s-n"></span></th>
             <th>Tipo</th>
-            <th onclick="sortBy('nm')" style="text-align:center" title="Nosso Médico RMSP">NM <span id="s-nm"></span></th>
-            <th onclick="sortBy('up')" style="text-align:center" title="Smart UP">UP <span id="s-up"></span></th>
-            <th onclick="sortBy('fx')" style="text-align:center" title="Smart Flex">Flex <span id="s-fx"></span></th>
-            <th onclick="sortBy('pr')" style="text-align:center" title="Smart Prime">Prime <span id="s-pr"></span></th>
+            <th onclick="sortBy('nm')" style="text-align:center">Nosso Médico <span id="s-nm"></span></th>
+            <th onclick="sortBy('up')" style="text-align:center">Smart UP <span id="s-up"></span></th>
+            <th onclick="sortBy('fx')" style="text-align:center">Smart Flex <span id="s-fx"></span></th>
+            <th onclick="sortBy('pr')" style="text-align:center">Smart Prime <span id="s-pr"></span></th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -219,6 +219,7 @@ tr:hover td{background:#fafbfc}
       <div class="no-results" id="no-results" style="display:none">
         <div style="font-size:32px">🔍</div>
         <p>Nenhum prestador encontrado para os filtros selecionados.</p>
+        <p style="font-size:12px;margin-top:8px;color:#9ca3af">Tente mudar o produto ou remover o filtro de cidade.</p>
       </div>
     </div>
     <div class="pagination">
@@ -345,6 +346,7 @@ const HOSP = [
 ].map(d=>({...d,tipo:"hosp"}));
 
 const LAB = [
+  // SÃO PAULO
   {c:"São Paulo",n:"Centro Clinico Santana - Unid 2",nm:1,up:1,fx:1,pr:1},
   {c:"São Paulo",n:"Clinica Diagnostico Zona Oeste",nm:1,up:1,fx:1,pr:1},
   {c:"São Paulo",n:"Diagnostico Itaim Bibi",nm:1,up:1,fx:1,pr:1},
@@ -365,6 +367,7 @@ const LAB = [
   {c:"São Paulo",n:"Lavoisier",nm:0,up:0,fx:1,pr:1},
   {c:"São Paulo",n:"Instituto Jo Clemente",nm:0,up:1,fx:1,pr:1},
   {c:"São Paulo",n:"Banco de Sangue de São Paulo",nm:0,up:0,fx:1,pr:1},
+  {c:"São Paulo",n:"Lavoisier (2)",nm:0,up:0,fx:1,pr:1},
   {c:"São Paulo",n:"Femme - Laboratorio da Mulher",nm:0,up:0,fx:0,pr:1},
   {c:"São Paulo",n:"ISA Home Lab",nm:0,up:1,fx:1,pr:1},
   {c:"São Paulo",n:"Lab Pat Dr Ferdinando",nm:0,up:1,fx:1,pr:1},
@@ -386,11 +389,13 @@ const LAB = [
   {c:"São Paulo",n:"Lavoisier Republica",nm:0,up:0,fx:0,pr:1},
   {c:"São Paulo",n:"Lavoisier Santana",nm:0,up:0,fx:0,pr:1},
   {c:"São Paulo",n:"Lavoisier Shop Metro Tatuape",nm:0,up:0,fx:0,pr:1},
+  // GUARULHOS
   {c:"Guarulhos",n:"Delboni Auriemo Guarulhos",nm:0,up:1,fx:1,pr:1},
   {c:"Guarulhos",n:"CJO Recursos Diagnosticos",nm:0,up:0,fx:0,pr:1},
   {c:"Guarulhos",n:"Lavoisier Guarulhos 2",nm:0,up:0,fx:0,pr:1},
+  // SÃO BERNARDO DO CAMPO
   {c:"São Bernardo do Campo",n:"Diagnostico Notrelabs Lucas Garcez",nm:1,up:1,fx:1,pr:1},
-  {c:"São Bernardo do Campo",n:"Delboni Auriemo SBC",nm:0,up:1,fx:1,pr:1},
+  {c:"São Bernardo do Campo",n:"Delboni Auriemo São Bernardo do Campo",nm:0,up:1,fx:1,pr:1},
   {c:"São Bernardo do Campo",n:"Lab Hormon",nm:0,up:1,fx:1,pr:1},
   {c:"São Bernardo do Campo",n:"Pathos Diagnosticos Medicos",nm:0,up:1,fx:1,pr:1},
   {c:"São Bernardo do Campo",n:"Exame Brasil",nm:0,up:0,fx:1,pr:1},
@@ -398,11 +403,13 @@ const LAB = [
   {c:"São Bernardo do Campo",n:"Tecnolab: Unidade VIII",nm:0,up:0,fx:1,pr:1},
   {c:"São Bernardo do Campo",n:"Fleming",nm:0,up:0,fx:0,pr:1},
   {c:"São Bernardo do Campo",n:"Diagnostico Rudge Ramos",nm:0,up:0,fx:0,pr:1},
-  {c:"São Caetano do Sul",n:"Diag Santa Paula CM São Cae",nm:0,up:1,fx:1,pr:1},
+  // SÃO CAETANO DO SUL
+  {c:"São Caetano do Sul",n:"Diag Santa Paula CM São Caetano",nm:0,up:1,fx:1,pr:1},
   {c:"São Caetano do Sul",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
   {c:"São Caetano do Sul",n:"Lavoisier",nm:0,up:0,fx:1,pr:1},
   {c:"São Caetano do Sul",n:"Exame Brasil",nm:0,up:0,fx:1,pr:1},
   {c:"São Caetano do Sul",n:"ISA Lab",nm:0,up:0,fx:0,pr:1},
+  // SANTO ANDRÉ
   {c:"Santo André",n:"Centro Clinico Santo Andre III",nm:1,up:1,fx:1,pr:1},
   {c:"Santo André",n:"Lab Eletivo UN AV Santo Andre",nm:0,up:1,fx:1,pr:1},
   {c:"Santo André",n:"Star Imagem",nm:0,up:1,fx:1,pr:1},
@@ -411,17 +418,25 @@ const LAB = [
   {c:"Santo André",n:"Tecnolab Unidade",nm:0,up:1,fx:1,pr:1},
   {c:"Santo André",n:"Fleming",nm:0,up:0,fx:0,pr:1},
   {c:"Santo André",n:"Miranda Wiermann Diag",nm:0,up:0,fx:0,pr:1},
+  // AMERICANA
   {c:"Americana",n:"Notrelabs Americana",nm:0,up:1,fx:1,pr:1},
   {c:"Americana",n:"Notrelabs Paulista",nm:0,up:1,fx:1,pr:1},
   {c:"Americana",n:"Centro de Diag Anatomia Patologica",nm:0,up:1,fx:1,pr:1},
   {c:"Americana",n:"Instituto Anatomia Patologia",nm:0,up:1,fx:1,pr:1},
   {c:"Americana",n:"Laboratorio Pasteur",nm:0,up:0,fx:0,pr:1},
+  // ARUJÁ
   {c:"Arujá",n:"Centro Clinico Aruja",nm:1,up:1,fx:1,pr:1},
   {c:"Arujá",n:"Cytolab",nm:0,up:1,fx:1,pr:1},
+  // BARUERI
   {c:"Barueri",n:"Centro Clinico Alphaville",nm:1,up:1,fx:1,pr:1},
   {c:"Barueri",n:"Lavoisier Alphaville - Rio Negro",nm:0,up:1,fx:1,pr:1},
   {c:"Barueri",n:"Sabin Diagnostico e Saude",nm:1,up:1,fx:1,pr:1},
   {c:"Barueri",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
+  // BERTIOGA
+  {c:"Bertioga",n:"Itapema Lab Anal Clin",nm:0,up:1,fx:1,pr:1},
+  // CAIEIRAS
+  {c:"Caieiras",n:"Lavoisier Caieiras",nm:0,up:1,fx:1,pr:1},
+  // CAMPINAS
   {c:"Campinas",n:"DMS Burnier",nm:0,up:1,fx:1,pr:1},
   {c:"Campinas",n:"Sollutio",nm:0,up:1,fx:1,pr:1},
   {c:"Campinas",n:"Lab Pat Clin A Frealdo",nm:0,up:1,fx:1,pr:1},
@@ -429,48 +444,132 @@ const LAB = [
   {c:"Campinas",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
   {c:"Campinas",n:"Confiance Medicina Diagnostica",nm:0,up:1,fx:1,pr:1},
   {c:"Campinas",n:"Labclinicas Barreto Leme",nm:0,up:0,fx:0,pr:1},
+  // CARAPICUÍBA
+  {c:"Carapicuíba",n:"Bioclinic Taboao da Serra",nm:0,up:1,fx:1,pr:1},
+  {c:"Carapicuíba",n:"Lavoisier Carapicuíba",nm:0,up:1,fx:1,pr:1},
+  {c:"Carapicuíba",n:"Lavoisier",nm:0,up:1,fx:1,pr:1},
+  {c:"Carapicuíba",n:"DASA Pedregulho",nm:0,up:0,fx:0,pr:1},
+  // COTIA
   {c:"Cotia",n:"Diagnostico Cotia I",nm:1,up:1,fx:1,pr:1},
   {c:"Cotia",n:"Delboni Auriemo Granja Viana",nm:0,up:1,fx:1,pr:1},
   {c:"Cotia",n:"Santa Clara Laboratorio Medico",nm:0,up:1,fx:1,pr:1},
   {c:"Cotia",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
   {c:"Cotia",n:"Lavoisier Cotia",nm:0,up:0,fx:0,pr:1},
+  // DIADEMA
   {c:"Diadema",n:"Diagnostico Diadema",nm:1,up:1,fx:1,pr:1},
   {c:"Diadema",n:"Lavoisier Diadema",nm:0,up:1,fx:1,pr:1},
   {c:"Diadema",n:"Tecnolab: Unidade II",nm:0,up:0,fx:0,pr:1},
+  // EMBU DAS ARTES
+  {c:"Embu das Artes",n:"Platta Lab Anal Clin",nm:0,up:1,fx:1,pr:1},
+  // FERRAZ DE VASCONCELOS
+  {c:"Ferraz de Vasconcelos",n:"Cytolab Ferraz de Vasconcelos",nm:0,up:1,fx:1,pr:1},
+  // FRANCO DA ROCHA
+  {c:"Franco da Rocha",n:"CTA Laboratorio",nm:0,up:1,fx:1,pr:1},
+  // GUARAREMA
+  {c:"Guararema",n:"Cytolab Guararema",nm:0,up:1,fx:1,pr:1},
+  // GUARUJÁ
+  {c:"Guarujá",n:"Laboratorio Gonzaga",nm:0,up:1,fx:1,pr:1},
+  {c:"Guarujá",n:"Itapema Lab Anal Clin",nm:0,up:1,fx:1,pr:1},
+  // HORTOLÂNDIA
+  {c:"Hortolândia",n:"DMS Burnier",nm:0,up:1,fx:1,pr:1},
+  {c:"Hortolândia",n:"Laboratorio Alpha",nm:0,up:1,fx:1,pr:1},
+  // INDAIATUBA
+  {c:"Indaiatuba",n:"Laboratorio Dra Edna Jaguaribe",nm:0,up:0,fx:0,pr:1},
+  {c:"Indaiatuba",n:"Lab Analises Clinicas",nm:0,up:0,fx:0,pr:1},
+  // ITANHAÉM
+  {c:"Itanhaém",n:"Anal Clin Cellula Mater",nm:0,up:1,fx:1,pr:1},
+  // ITAPECERICA DA SERRA
+  {c:"Itapecerica da Serra",n:"Bioclinic Taboao da Serra",nm:0,up:1,fx:1,pr:1},
+  {c:"Itapecerica da Serra",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
+  // ITAPEVI
+  {c:"Itapevi",n:"Lab Eletivo Hosp Nova Vida",nm:0,up:1,fx:1,pr:1},
+  {c:"Itapevi",n:"Lab Eletivo Notrelabs Itapevi",nm:0,up:1,fx:1,pr:1},
+  {c:"Itapevi",n:"Lavoisier Itapevi",nm:0,up:1,fx:1,pr:1},
+  // ITAQUAQUECETUBA
+  {c:"Itaquaquecetuba",n:"Cytolab Itaquaquecetuba",nm:0,up:1,fx:1,pr:1},
+  {c:"Itaquaquecetuba",n:"SMD",nm:0,up:1,fx:1,pr:1},
+  // ITUPEVA
+  {c:"Itupeva",n:"Lab Pat Clin Biologico",nm:0,up:1,fx:1,pr:1},
+  // JANDIRA
+  {c:"Jandira",n:"Jablonka Medicina",nm:0,up:1,fx:1,pr:1},
+  {c:"Jandira",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
+  // JUNDIAÍ
+  {c:"Jundiaí",n:"Laboratorio Cardoso de Almeida",nm:0,up:1,fx:1,pr:1},
+  {c:"Jundiaí",n:"Lab Anal Clin Anchieta",nm:0,up:1,fx:1,pr:1},
+  {c:"Jundiaí",n:"Lab Pat Clin Biologico",nm:0,up:1,fx:1,pr:1},
+  // LOUVEIRA
+  {c:"Louveira",n:"Angela Papes Saude",nm:0,up:1,fx:1,pr:1},
+  // MAUÁ
+  {c:"Mauá",n:"Diag Bandeirantes Mauá",nm:0,up:1,fx:1,pr:1},
+  {c:"Mauá",n:"Lavoisier Shopping Mauá",nm:0,up:1,fx:1,pr:1},
+  {c:"Mauá",n:"Biocenter",nm:0,up:1,fx:1,pr:1},
+  {c:"Mauá",n:"Laboratorio Lavoisier Maua",nm:0,up:0,fx:0,pr:1},
+  // MOGI DAS CRUZES
   {c:"Mogi das Cruzes",n:"Notrelabs Mogi Central",nm:1,up:1,fx:1,pr:1},
   {c:"Mogi das Cruzes",n:"Bio Campos Anal Clin",nm:0,up:1,fx:1,pr:1},
   {c:"Mogi das Cruzes",n:"Cytolab Cesar de Souza",nm:0,up:1,fx:1,pr:1},
   {c:"Mogi das Cruzes",n:"Unid Mogiana Diag Imagem",nm:0,up:1,fx:1,pr:1},
+  // MONGAGUÁ
+  {c:"Mongaguá",n:"Laboratorio Gonzaga",nm:0,up:1,fx:1,pr:1},
+  // OSASCO
   {c:"Osasco",n:"Notrelabs Osasco - Autonomista",nm:1,up:1,fx:1,pr:1},
   {c:"Osasco",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
   {c:"Osasco",n:"Endoplus Diagnosticos",nm:0,up:0,fx:0,pr:1},
-  {c:"Santos",n:"Notrelabs Santos",nm:1,up:1,fx:1,pr:1},
-  {c:"Santos",n:"Diagnos",nm:0,up:1,fx:1,pr:1},
-  {c:"Santos",n:"Delboni Auriemo Santos",nm:0,up:1,fx:1,pr:1},
-  {c:"Santos",n:"Laboratorio Gonzaga",nm:0,up:1,fx:1,pr:1},
-  {c:"Sorocaba",n:"Diagnostico Sorocaba",nm:0,up:1,fx:1,pr:1},
-  {c:"Sorocaba",n:"Notrelabs Ipanema Sorocaba",nm:0,up:1,fx:1,pr:1},
-  {c:"Sorocaba",n:"Biolabor de Sorocaba",nm:0,up:1,fx:1,pr:1},
-  {c:"Sorocaba",n:"Cardio Vida Sorocaba",nm:0,up:1,fx:1,pr:1},
-  {c:"Sorocaba",n:"Sollutio",nm:0,up:1,fx:1,pr:1},
-  {c:"Sorocaba",n:"Labormed Sorocaba",nm:0,up:1,fx:1,pr:1},
-  {c:"Taboão da Serra",n:"Lab Eletivo Hospital Family",nm:1,up:1,fx:1,pr:1},
-  {c:"Taboão da Serra",n:"Notrelabs Taboao da Serra",nm:1,up:1,fx:1,pr:1},
-  {c:"Taboão da Serra",n:"Bioclinic Taboao da Serra",nm:0,up:1,fx:1,pr:1},
-  {c:"Taboão da Serra",n:"Lavoisier Shopping Taboão",nm:0,up:1,fx:1,pr:1},
-  {c:"Mauá",n:"Diag Bandeirantes Mauá",nm:0,up:1,fx:1,pr:1},
-  {c:"Mauá",n:"Lavoisier Shopping Mauá",nm:0,up:1,fx:1,pr:1},
-  {c:"Mauá",n:"Biocenter",nm:0,up:1,fx:1,pr:1},
+  // POÁ
+  {c:"Poá",n:"Cytolab Poá",nm:0,up:1,fx:1,pr:1},
+  // PRAIA GRANDE
+  {c:"Praia Grande",n:"Cedial Diagnósticos",nm:0,up:1,fx:1,pr:1},
+  {c:"Praia Grande",n:"Laboratorio Carlos Chagas",nm:0,up:1,fx:1,pr:1},
+  {c:"Praia Grande",n:"Laboratorio Gonzaga",nm:0,up:1,fx:1,pr:1},
+  // RIBEIRÃO PIRES
   {c:"Ribeirão Pires",n:"Diag Ribeirão Pires",nm:0,up:1,fx:1,pr:1},
   {c:"Ribeirão Pires",n:"Vital Lab",nm:0,up:1,fx:1,pr:1},
   {c:"Ribeirão Pires",n:"IPAC Laboratorio e Imagem",nm:0,up:1,fx:1,pr:1},
   {c:"Ribeirão Pires",n:"Tecnolab: Unidade IV",nm:0,up:1,fx:1,pr:1},
+  // SANTA BÁRBARA D'OESTE
+  {c:"Santa Bárbara d'Oeste",n:"Inst Anatomia Patologia",nm:0,up:1,fx:1,pr:1},
+  {c:"Santa Bárbara d'Oeste",n:"Notrelabs Cidade Nova",nm:0,up:1,fx:1,pr:1},
+  // SANTOS
+  {c:"Santos",n:"Notrelabs Santos",nm:1,up:1,fx:1,pr:1},
+  {c:"Santos",n:"Diagnos",nm:0,up:1,fx:1,pr:1},
+  {c:"Santos",n:"Delboni Auriemo Santos",nm:0,up:1,fx:1,pr:1},
+  {c:"Santos",n:"Laboratorio Gonzaga",nm:0,up:1,fx:1,pr:1},
+  // SÃO VICENTE
+  {c:"São Vicente",n:"Laboratorio Gonzaga",nm:0,up:1,fx:1,pr:1},
+  // SOROCABA
+  {c:"Sorocaba",n:"Diagnostico Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Notrelabs Ipanema Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Biolabor de Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Cardio Vida Sorocaba",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Clin Radiologia Odonto S",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Sollutio",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Lab Colpat Patologia",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Souza Areas Lab Analises",nm:0,up:1,fx:1,pr:1},
+  {c:"Sorocaba",n:"Labormed Sorocaba",nm:0,up:1,fx:1,pr:1},
+  // SUMARÉ
+  {c:"Sumaré",n:"Notrelabs Sumare",nm:0,up:1,fx:1,pr:1},
+  // SUZANO
   {c:"Suzano",n:"Cytolab Suzano Centro",nm:0,up:1,fx:1,pr:1},
   {c:"Suzano",n:"Unid Mogiana Diag Imagem",nm:0,up:1,fx:1,pr:1},
+  {c:"Suzano",n:"Laboratorio São Francisco",nm:0,up:1,fx:1,pr:1},
+  // TABOÃO DA SERRA
+  {c:"Taboão da Serra",n:"Lab Eletivo Hospital Family",nm:1,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Notrelabs Taboao da Serra",nm:1,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Bioclinic Taboao da Serra",nm:0,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Lavoisier Shopping Taboão",nm:0,up:1,fx:1,pr:1},
+  {c:"Taboão da Serra",n:"Centerclinpari",nm:0,up:1,fx:1,pr:1},
+  // VALINHOS
+  {c:"Valinhos",n:"DMS Burnier",nm:0,up:1,fx:1,pr:1},
+  {c:"Valinhos",n:"Central Analisys",nm:0,up:1,fx:1,pr:1},
+  // VARGEM GRANDE PAULISTA
+  {c:"Vargem Grande Paulista",n:"Lavoisier Shopping Raposo",nm:0,up:1,fx:1,pr:1},
+  // VÁRZEA PAULISTA
+  {c:"Várzea Paulista",n:"Lab Pat Clin Biologico",nm:0,up:1,fx:1,pr:1},
+  // VINHEDO
+  {c:"Vinhedo",n:"DMS Burnier",nm:0,up:1,fx:1,pr:1},
   {c:"Vinhedo",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
-  {c:"Jundiaí",n:"Laboratorio Cardoso de Almeida",nm:0,up:1,fx:1,pr:1},
-  {c:"Jundiaí",n:"Lab Anal Clin Anchieta",nm:0,up:1,fx:1,pr:1},
-  {c:"São Bernardo do Campo",n:"Lab Hormon SBC",nm:0,up:1,fx:1,pr:1},
+  // VOTORANTIM
+  {c:"Votorantim",n:"Souza Areas Lab Analises",nm:0,up:1,fx:1,pr:1},
 ].map(d=>({...d,tipo:"lab",cob:null}));
 
 const ALL = [...HOSP, ...LAB];
@@ -560,9 +659,15 @@ function render(){
     }).join("");
   }
 
-  // Count badge
-  document.getElementById("count-badge").textContent = `${data.length} prestador${data.length!==1?"es":""}`;
-
+  // Info cidade
+  if(state.cidade !== "all") {
+    const todosNaCidade = ALL.filter(d => d.c === state.cidade);
+    const hNaCidade = todosNaCidade.filter(d => d.tipo === "hosp").length;
+    const lNaCidade = todosNaCidade.filter(d => d.tipo === "lab").length;
+    document.getElementById("count-badge").textContent = `${data.length} exibidos · ${hNaCidade} hosp / ${lNaCidade} labs em ${state.cidade}`;
+  } else {
+    document.getElementById("count-badge").textContent = `${data.length} prestador${data.length!==1?"es":""}`;
+  }
   // Pagination
   renderPagination(data.length);
 
@@ -710,8 +815,8 @@ function resetFilters(){
   render();
 }
 
-document.getElementById("f-produto").addEventListener("change",e=>{state.produto=e.target.value;state.page=0;render();});
-document.getElementById("f-cidade").addEventListener("change",e=>{state.cidade=e.target.value;state.page=0;render();});
+document.getElementById("f-produto").addEventListener("change",e=>{state.produto=e.target.value;state.page=0;state.search="";document.getElementById("f-search").value="";render();});
+document.getElementById("f-cidade").addEventListener("change",e=>{state.cidade=e.target.value;state.page=0;state.search="";document.getElementById("f-search").value="";render();});
 document.getElementById("f-search").addEventListener("input",e=>{state.search=e.target.value.toLowerCase().trim();state.page=0;render();});
 
 populateCidades();
