@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rede de Atendimento Hapvida – RMSP</title>
+<title>Rede de Atendimento Hapvida – SP | RJ</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -114,7 +114,10 @@ tr:hover td{background:#fafbfc}
 /* Footer */
 .footer{text-align:center;padding:20px;font-size:11px;color:var(--text3);margin-top:8px}
 
-/* Login overlay */
+/* Responsive */
+@media(max-width:1024px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row{grid-template-columns:1fr 1fr}}
+@media(max-width:640px){.kpi-row{grid-template-columns:1fr 1fr}.chart-row{grid-template-columns:1fr}.hdr{flex-direction:column;align-items:flex-start}.tabs{flex-wrap:wrap}}
+@media print{.filters-bar,.tabs{display:none}.chart-row{grid-template-columns:1fr 1fr}.table-card{box-shadow:none;border:1px solid var(--border)}}
 #login-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999}
 #login-overlay.hidden{display:none}
 .login-box{background:var(--card);border-radius:var(--radius);box-shadow:0 4px 24px rgba(0,0,0,.12);padding:40px 36px;width:100%;max-width:360px;text-align:center}
@@ -126,21 +129,14 @@ tr:hover td{background:#fafbfc}
 .login-box button{width:100%;padding:11px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:14px;font-weight:600;cursor:pointer}
 .login-box button:hover{background:var(--primary-dark)}
 .login-error{font-size:12px;color:#c0392b;margin-top:8px;min-height:16px}
-
-/* Responsive */
-@media(max-width:1024px){.kpi-row{grid-template-columns:repeat(2,1fr)}.chart-row{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.kpi-row{grid-template-columns:1fr 1fr}.chart-row{grid-template-columns:1fr}.hdr{flex-direction:column;align-items:flex-start}.tabs{flex-wrap:wrap}}
-@media print{.filters-bar,.tabs{display:none}.chart-row{grid-template-columns:1fr 1fr}.table-card{box-shadow:none;border:1px solid var(--border)}}
 </style>
 </head>
 <body>
-
-<!-- Login overlay -->
 <div id="login-overlay">
   <div class="login-box">
     <div class="login-logo">H</div>
     <h2>Rede de Atendimento</h2>
-    <p>Hapvida – RMSP</p>
+    <p>Hapvida — RMSP</p>
     <input type="password" id="login-input" placeholder="Digite a senha" autocomplete="current-password" />
     <button onclick="checkLogin()">Entrar</button>
     <div class="login-error" id="login-error"></div>
@@ -153,14 +149,22 @@ tr:hover td{background:#fafbfc}
   <div class="hdr">
     <div class="hdr-left">
       <div>
-        <h1>Rede de Atendimento Hapvida NotreDame <span class="badge-vig">Vigência 01/06/2026</span></h1>
-        <p>Região Metropolitana de São Paulo — Hospitais e Laboratórios credenciados</p>
+        <h1>Rede de Atendimento Hapvida NotreDame — SP | RJ <span class="badge-vig">Vigência 01/06/2026</span></h1>
+        <p>São Paulo e Rio de Janeiro — Hospitais e Laboratórios credenciados</p>
       </div>
     </div>
   </div>
 
   <!-- Filters -->
   <div class="filters-bar">
+    <div class="fg">
+      <label>Estado</label>
+      <select id="f-estado">
+        <option value="all">SP + RJ</option>
+        <option value="SP">São Paulo</option>
+        <option value="RJ">Rio de Janeiro</option>
+      </select>
+    </div>
     <div class="fg">
       <label>Produto</label>
       <select id="f-produto">
@@ -169,6 +173,9 @@ tr:hover td{background:#fafbfc}
         <option value="up">Smart UP</option>
         <option value="fx">Smart Flex</option>
         <option value="pr">Smart Prime</option>
+        <option value="sr">Smart Rio</option>
+        <option value="s3">Smart 300</option>
+        <option value="s5">Smart 500</option>
       </select>
     </div>
     <div class="fg">
@@ -234,10 +241,10 @@ tr:hover td{background:#fafbfc}
             <th onclick="sortBy('c')" id="th-c">Cidade <span id="s-c"></span></th>
             <th onclick="sortBy('n')" id="th-n">Prestador <span id="s-n"></span></th>
             <th>Tipo</th>
-            <th onclick="sortBy('nm')" style="text-align:center">Nosso Médico <span id="s-nm"></span></th>
-            <th onclick="sortBy('up')" style="text-align:center">Smart UP <span id="s-up"></span></th>
-            <th onclick="sortBy('fx')" style="text-align:center">Smart Flex <span id="s-fx"></span></th>
-            <th onclick="sortBy('pr')" style="text-align:center">Smart Prime <span id="s-pr"></span></th>
+            <th id="th-col1" style="text-align:center;font-size:10px" onclick="sortBy('c1')"><span id="lbl-c1">—</span> <span id="s-c1"></span></th>
+            <th id="th-col2" style="text-align:center;font-size:10px" onclick="sortBy('c2')"><span id="lbl-c2">—</span> <span id="s-c2"></span></th>
+            <th id="th-col3" style="text-align:center;font-size:10px" onclick="sortBy('c3')"><span id="lbl-c3">—</span> <span id="s-c3"></span></th>
+            <th id="th-col4" style="text-align:center;font-size:10px" onclick="sortBy('c4')"><span id="lbl-c4">—</span> <span id="s-c4"></span></th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -369,7 +376,97 @@ const HOSP = [
   {c:"Itu",n:"Pronto Atendimento Itu",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
   {c:"Praia Grande",n:"Casa de Saude de Santos (PA)",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
   {c:"Santa Bárbara d'Oeste",n:"Hospital Santa Barbara",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H"}},
-].map(d=>({...d,tipo:"hosp"}));
+
+  // ── RIO DE JANEIRO ─────────────────────────────────────────────────────────
+  {e:"RJ",c:"Rio de Janeiro",n:"Pronto Atendimento Cidade Nova",sr:1,s3:1,s5:1,pr:1,cob:{sr:"PS",s3:"PS",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Pronto Atendimento Zona Oeste",sr:1,s3:1,s5:1,pr:1,cob:{sr:"PS",s3:"PS",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Notrecare Rio",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital da Mulher Jacarepagua",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Infantil Jacarepagua",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital de Clinicas",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Cemeru",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Americas Oftalmocenter Tijuca",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Israelita Albert Sabin",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Sao Francisco na Prov",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Barra Day",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Clinica Grajau",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Casa Saude N S do Carmo",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Tijutrauma",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Cirurgica Sta Barbara",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Cristo Rei",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica da Gavea",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Sao Carlos",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Sao Vicente",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Jacarepagua",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Riomar",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital de Iraja",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Di Camp",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Balbino",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Sao Lucas",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"IBOL Botafogo",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Quali Ipanema",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Centro Pediatrico da Lagoa",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Jardim de Alah Cirurgico",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Oftalclin Dr Antonio Lobo",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Policlinica de Botafogo",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Procor Pronto Socorro",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Prontobaby Hospital da Crianca",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Pro Oftalmo Micro Cir",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Bangu",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Angra dos Reis",n:"Hospital de Praia Brava",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Araruama",n:"Hospital das Clinicas dos Lagos",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Barra do Pirai",n:"Casa de Caridade Santa Rita",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Barra Mansa",n:"Casa de Saude Santa Maria",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Cabo Frio",n:"Clipel Pediatria Lagos",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Cabo Frio",n:"Hospital Santa Izabel",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"UTI Neonatal Nicola Albano",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Clinica Lilia Neves",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Hospital Geral Pronto Cardio",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Hospital Dr Beda",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Coracao - D. Caxias",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Geral de Fatima HGF",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Mario Lioni",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Daniel Lipp",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Itaguai",n:"Hospital Cemeru",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Itaperuna",n:"Hospital Sao Jose do Avai",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Macae",n:"Clinica Sao Lucas",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Mesquita",n:"Hospital Clinicas Jucelino",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Casa Saude Santa Martha",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Nilópolis",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Nilópolis",n:"Hospital Domingos Lourenco",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Clinicas Alameda",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Olhos Niteroi",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Niterói",n:"Clinica Luiz Pires Mello",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Clinica Pater Saude Mental",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Clinicas do Inga",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Olhos Santa Beatriz",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"CHN Hospitalar Niteroi",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Nova Friburgo",n:"Hospital Serrano",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Casa Saude Nsa Sra Fatima",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Emcor - Hosp do Coracao",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Hospital Geral Prontonil",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Paracambi",n:"Casa de Saude Paracambi",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Petrópolis",n:"Hospital de Clinicas de Correas",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Petrópolis",n:"Beneficencia Portuguesa",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Resende",n:"Samer Hospital",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio das Ostras",n:"Hospital Grand Mater",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"São Fidélis",n:"Hospital Armando Vidal",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"São Gonçalo",n:"Pronto Atendimento Sao Goncalo",sr:1,s3:1,s5:1,pr:1,cob:{sr:"PS",s3:"PS",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"São Gonçalo",n:"Hospital de Olhos Niteroi",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"São João de Meriti",n:"Hospital Terezinha de Jesus",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"São João de Meriti",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Seropédica",n:"Hospital Cemeru",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Teresópolis",n:"Hospital Sao Jose",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Teresópolis",n:"Benef. Portuguesa Teresopolis",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Três Rios",n:"Hospital N. Sra da Conceicao",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Vassouras",n:"CIS Centro Integrado de Saude",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Volta Redonda",n:"HINJA",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Volta Redonda",n:"Hospital Viver Mais",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Volta Redonda",n:"Hospital Santa Cecilia",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+].map(d=>({...d,tipo:"hosp",e:d.e||"SP",nm:d.nm||0,up:d.up||0,fx:d.fx||0,pr:d.pr||0,sr:d.sr||0,s3:d.s3||0,s5:d.s5||0}));
 
 const LAB = [
   // SÃO PAULO
@@ -596,25 +693,154 @@ const LAB = [
   {c:"Vinhedo",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
   // VOTORANTIM
   {c:"Votorantim",n:"Souza Areas Lab Analises",nm:0,up:1,fx:1,pr:1},
-].map(d=>({...d,tipo:"lab",cob:null}));
+
+  // ── RIO DE JANEIRO – LABORATÓRIOS ──────────────────────────────────────────
+  {e:"RJ",c:"Rio de Janeiro",n:"Unidade Avancada Cidade Nova",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Arterius Diagnosticos",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Cegemerj Barra",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Centro de Diagnosticos Galeao",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Diagnostic Lab Anal Clin",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"DLC Diagnosticos",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Eliel Figueiredo",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Endomais",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Exclusive Health Lab",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio Ferrari",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labi Exames Taquara",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio Biomedico Centro",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labormed Campo Grande",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labormed Copacabana",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio de Patologia HE",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio Lapac",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Neurolife Laboratorios",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Pro Echo Cardiodata",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Angra dos Reis",n:"Laboratorio Angralab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Araruama",n:"Exata Lab Analises",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Armação dos Búzios",n:"Laboratorio O. S. Rezende",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Barra do Pirai",n:"Laboratorio Medico Dr Falcao",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Barra Mansa",n:"Diagnolab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Barra Mansa",n:"J. C. Henriques Laboratorio",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Barra Mansa",n:"Laclin",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Belford Roxo",n:"Labormed Laboratorios Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Belford Roxo",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Alpha Laboratorio",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Centro de Diagnostico Citologico",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Laboratorio CDC",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Laboratorio O S Rezende",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Bedalab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Hemoclin",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cardoso Moreira",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Exclusive Health Lab",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Itaboraí",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Itaboraí",n:"Gram Laboratorio",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Itaguaí",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Itaguaí",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Diagnostico Laboratorial",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Hemolabes",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Magé",n:"Cevimar Lab Anal Clin",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Magé",n:"Lace",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Labormed Centro Niteroi",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Laboratorio Dom Bosco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Vallab Analises Clinicas",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Nilópolis",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nilópolis",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Nilópolis",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Cegemerj",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Alta Diagnostico Icarai",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Labi Exames Taquara",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Labormed Centro Niteroi",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Laboratorio Dom Bosco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Pro Echo Cardiodata",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Dr Kanaan",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Dr Emmerson Lab Imagem",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Lab Dr Emmerson Luiz",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Laboratorio Emmerson",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Labormed Laboratorios Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Petrópolis",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Petrópolis",n:"Lab Dr Homero Soares",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Petrópolis",n:"Baffi Medicina Laboratorial",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Porto Real",n:"Ferreira Passini Lab",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Quissamã",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Resende",n:"Ferreira Passini Lab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Resende",n:"Falcao Medicina Laboratorial",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio Bonito",n:"Gram Medicina Laboratorial",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Rio das Ostras",n:"Duo Diagnosticos",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São Fidélis",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São Francisco de Itabapoana",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Centro de Diagnosticos Galeao",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Labormed Centro Niteroi",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Laboratorio Dom Bosco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Pro Echo Cardiodata",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São João da Barra",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Labormed Laboratorios Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Teresópolis",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Teresópolis",n:"Inova Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Teresópolis",n:"Laboratorio Sao Lucas",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Três Rios",n:"Laboratorio Tinoco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Três Rios",n:"Norat Laboratorio",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Cedov CT Densitometria",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Centrolab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Laboratorio Medico Diagnolab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Labes",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Laboratorio Dr Falcao",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Anaclin",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Lapec",sr:0,s3:0,s5:0,pr:1},
+].map(d=>({...d,tipo:"lab",cob:null,e:d.e||"SP",nm:d.nm||0,up:d.up||0,fx:d.fx||0,pr:d.pr||0,sr:d.sr||0,s3:d.s3||0,s5:d.s5||0}));
 
 const ALL = [...HOSP, ...LAB];
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
-let state = {tab:"todos", produto:"all", cidade:"all", search:"", sortKey:"c", sortDir:1, page:0};
+let state = {tab:"todos", produto:"all", estado:"all", cidade:"all", search:"", sortKey:"c", sortDir:1, page:0};
 const PAGE_SIZE = 50;
 let charts = {};
 
 // ─── FILTER ──────────────────────────────────────────────────────────────────
+// Mapeamento de produtos por estado
+const PROD_COLS = {
+  SP: [{key:"nm",lbl:"Nosso Médico"},{key:"up",lbl:"Smart UP"},{key:"fx",lbl:"Smart Flex"},{key:"pr",lbl:"Smart Prime"}],
+  RJ: [{key:"sr",lbl:"Smart Rio"},{key:"s3",lbl:"Smart 300"},{key:"s5",lbl:"Smart 500"},{key:"pr",lbl:"Smart Prime"}],
+  all:[{key:"nm",lbl:"Nosso Médico"},{key:"up",lbl:"Smart UP"},{key:"fx",lbl:"Smart Flex"},{key:"sr",lbl:"Smart Rio"},{key:"s3",lbl:"Smart 300"},{key:"s5",lbl:"Smart 500"},{key:"pr",lbl:"Smart Prime"}]
+};
+
+function prodMatch(d, produto){
+  if(produto==="all") return true;
+  const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr,sr:d.sr,s3:d.s3,s5:d.s5};
+  return !!map[produto];
+}
+
 function filtered(){
-  const {tab, produto, cidade, search} = state;
+  const {tab, produto, estado, cidade, search} = state;
   return ALL.filter(d=>{
     if(tab==="hosp" && d.tipo!=="hosp") return false;
     if(tab==="lab"  && d.tipo!=="lab")  return false;
-    if(produto!=="all"){
-      const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr};
-      if(!map[produto]) return false;
-    }
+    if(estado!=="all" && d.e!==estado) return false;
+    if(!prodMatch(d, produto)) return false;
     if(cidade!=="all" && d.c!==cidade) return false;
     if(search && !d.n.toLowerCase().includes(search)) return false;
     return true;
@@ -631,7 +857,19 @@ function sorted(data){
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
+function updateHeaders(){
+  const cols = state.estado==="RJ" ? PROD_COLS.RJ : PROD_COLS.SP;
+  ["c1","c2","c3","c4"].forEach((id,i)=>{
+    const el = document.getElementById("lbl-"+id);
+    if(el) el.textContent = cols[i]?cols[i].lbl:"";
+  });
+  // Ajustar visibilidade das colunas extras
+  const th4 = document.getElementById("th-col4");
+  if(th4) th4.style.display = "";
+}
+
 function render(){
+  updateHeaders();
   const data = filtered();
   const sdata = sorted(data);
   const hosps = data.filter(d=>d.tipo==="hosp").length;
@@ -708,11 +946,12 @@ function render(){
 }
 
 function filtered_by_tab(tab){
-  const {produto, cidade, search} = state;
+  const {produto, estado, cidade, search} = state;
   return ALL.filter(d=>{
     if(tab==="hosp" && d.tipo!=="hosp") return false;
     if(tab==="lab"  && d.tipo!=="lab")  return false;
-    if(produto!=="all"){const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr};if(!map[produto])return false;}
+    if(estado!=="all" && d.e!==estado) return false;
+    if(!prodMatch(d, produto)) return false;
     if(cidade!=="all"&&d.c!==cidade)return false;
     if(search&&!d.n.toLowerCase().includes(search))return false;
     return true;
@@ -757,27 +996,31 @@ function updateCharts(data){
   // Tipo doughnut
   const hospN = data.filter(d=>d.tipo==="hosp").length;
   const labN  = data.filter(d=>d.tipo==="lab").length;
+  const spN = data.filter(d=>d.e==="SP").length;
+  const rjN = data.filter(d=>d.e==="RJ").length;
+  const tipoLabels = state.estado==="all" ? ["Hospitais","Laboratórios","SP","RJ"] : ["Hospitais","Laboratórios"];
+  const tipoData   = state.estado==="all" ? [hospN,labN,spN,rjN] : [hospN,labN];
+  const tipoCols   = state.estado==="all" ? ["#e55300","#1d9e75","#7f77dd","#f59e0b"] : ["#e55300","#1d9e75"];
   updateOrCreate("chart-tipo","doughnut",{
-    labels:["Hospitais","Laboratórios"],
-    datasets:[{data:[hospN,labN],backgroundColor:["#e55300","#1d9e75"],borderWidth:2,borderColor:"#fff"}]
-  },{plugins:{legend:{position:"bottom",labels:{font:{size:12},padding:12,boxWidth:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} (${Math.round(c.parsed/(hospN+labN||1)*100)}%)`}}}});
+    labels:tipoLabels,
+    datasets:[{data:tipoData,backgroundColor:tipoCols,borderWidth:2,borderColor:"#fff"}]
+  },{plugins:{legend:{position:"bottom",labels:{font:{size:11},padding:10,boxWidth:11}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed}`}}}});
 
-  // Produto bar
-  const prods = [
-    {label:"Nosso Médico",key:"nm",color:"#003087"},
-    {label:"Smart UP",key:"up",color:"#2563eb"},
-    {label:"Smart Flex",key:"fx",color:"#0f6e56"},
-    {label:"Smart Prime",key:"pr",color:"#e55300"},
-  ];
+  // Produto bar — dinâmico por estado
+  const prodsDef = state.estado==="RJ"
+    ? [{label:"Smart Rio",key:"sr",color:"#1d6fab"},{label:"Smart 300",key:"s3",color:"#2563eb"},{label:"Smart 500",key:"s5",color:"#0f6e56"},{label:"Smart Prime",key:"pr",color:"#e55300"}]
+    : state.estado==="SP"
+    ? [{label:"Nosso Médico",key:"nm",color:"#003087"},{label:"Smart UP",key:"up",color:"#2563eb"},{label:"Smart Flex",key:"fx",color:"#0f6e56"},{label:"Smart Prime",key:"pr",color:"#e55300"}]
+    : [{label:"Nosso Médico",key:"nm",color:"#003087"},{label:"Smart UP",key:"up",color:"#1d6fab"},{label:"Smart Flex",key:"fx",color:"#0f6e56"},{label:"Smart Rio",key:"sr",color:"#7f77dd"},{label:"Smart 300",key:"s3",color:"#2563eb"},{label:"Smart 500",key:"s5",color:"#059669"},{label:"Smart Prime",key:"pr",color:"#e55300"}];
   updateOrCreate("chart-produto","bar",{
-    labels: prods.map(p=>p.label),
+    labels: prodsDef.map(p=>p.label),
     datasets:[{
       label:"Prestadores",
-      data: prods.map(p=>data.filter(d=>d[p.key]).length),
-      backgroundColor: prods.map(p=>p.color),
+      data: prodsDef.map(p=>data.filter(d=>d[p.key]).length),
+      backgroundColor: prodsDef.map(p=>p.color),
       borderRadius:5
     }]
-  },{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:20}},x:{ticks:{font:{size:11}}}}});
+  },{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:20}},x:{ticks:{font:{size:10}}}}});
 
   // Top cidades
   const cityCount = {};
@@ -812,12 +1055,38 @@ function updateOrCreate(id, type, data, options={}, extra={}){
 // ─── SETUP ───────────────────────────────────────────────────────────────────
 function populateCidades(){
   const sel = document.getElementById("f-cidade");
-  const cidades = [...new Set(ALL.map(d=>d.c))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  // limpar opções existentes (manter "todas")
+  while(sel.options.length > 1) sel.remove(1);
+  const src = state.estado==="all" ? ALL : ALL.filter(d=>d.e===state.estado);
+  const cidades = [...new Set(src.map(d=>d.c))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
   cidades.forEach(c=>{
     const o = document.createElement("option");
     o.value=c; o.textContent=c;
     sel.appendChild(o);
   });
+}
+
+function updateProdutoOptions(){
+  const sel = document.getElementById("f-produto");
+  const spOpts = `<option value="all">Todos os produtos</option>
+    <option value="nm">Nosso Médico RMSP</option>
+    <option value="up">Smart UP</option>
+    <option value="fx">Smart Flex</option>
+    <option value="pr">Smart Prime</option>`;
+  const rjOpts = `<option value="all">Todos os produtos</option>
+    <option value="sr">Smart Rio</option>
+    <option value="s3">Smart 300</option>
+    <option value="s5">Smart 500</option>
+    <option value="pr">Smart Prime</option>`;
+  const allOpts = `<option value="all">Todos os produtos</option>
+    <option value="nm">Nosso Médico RMSP</option>
+    <option value="up">Smart UP</option>
+    <option value="fx">Smart Flex</option>
+    <option value="sr">Smart Rio</option>
+    <option value="s3">Smart 300</option>
+    <option value="s5">Smart 500</option>
+    <option value="pr">Smart Prime</option>`;
+  sel.innerHTML = state.estado==="RJ" ? rjOpts : state.estado==="SP" ? spOpts : allOpts;
 }
 
 function setTab(t){
@@ -834,21 +1103,34 @@ function sortBy(k){
 }
 
 function resetFilters(){
+  document.getElementById("f-estado").value="all";
   document.getElementById("f-produto").value="all";
   document.getElementById("f-cidade").value="all";
   document.getElementById("f-search").value="";
-  state.produto="all"; state.cidade="all"; state.search=""; state.page=0;
+  state.estado="all"; state.produto="all"; state.cidade="all"; state.search=""; state.page=0;
+  populateCidades();
+  updateProdutoOptions();
   render();
 }
 
+document.getElementById("f-estado").addEventListener("change",e=>{
+  state.estado=e.target.value;
+  state.page=0; state.cidade="all"; state.produto="all"; state.search="";
+  document.getElementById("f-cidade").value="all";
+  document.getElementById("f-produto").value="all";
+  document.getElementById("f-search").value="";
+  populateCidades();
+  updateProdutoOptions();
+  render();
+});
 document.getElementById("f-produto").addEventListener("change",e=>{state.produto=e.target.value;state.page=0;state.search="";document.getElementById("f-search").value="";render();});
 document.getElementById("f-cidade").addEventListener("change",e=>{state.cidade=e.target.value;state.page=0;state.search="";document.getElementById("f-search").value="";render();});
 document.getElementById("f-search").addEventListener("input",e=>{state.search=e.target.value.toLowerCase().trim();state.page=0;render();});
 
 populateCidades();
+updateProdutoOptions();
 render();
 </script>
-
 <script>
 (function(){
   const KEY = 'redermsp_auth';
