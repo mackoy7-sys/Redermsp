@@ -94,9 +94,11 @@ tr:hover td{background:#fafbfc}
 .tipo-hm{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#fbeaf0;color:#993556;font-weight:600}
 .tipo-cc{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#e0e7ff;color:#3730a3;font-weight:600}
 .tipo-nmf{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#dcfce7;color:#166534;font-weight:600}
+.tipo-pa{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#ccfbf1;color:#0f766e;font-weight:600}
 .cob-h{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--info-bg);color:var(--info);font-weight:600;margin:1px}
 .cob-ps{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--warn-bg);color:var(--warn);font-weight:600;margin:1px}
 .cob-m{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:#fbeaf0;color:#993556;font-weight:600;margin:1px}
+.cob-pa{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:#ccfbf1;color:#0f766e;font-weight:600;margin:1px}
 .dash{color:var(--text3)}
 
 /* No results */
@@ -216,6 +218,7 @@ tr:hover td{background:#fafbfc}
     <div class="legend" style="padding:0 20px 12px">
       <span class="legend-item"><span class="legend-dot" style="background:var(--info-bg);border:1px solid var(--info)"></span> Hospital (H)</span>
       <span class="legend-item"><span class="legend-dot" style="background:var(--warn-bg);border:1px solid var(--warn)"></span> Pronto-Socorro (PS)</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ccfbf1;border:1px solid #0f766e"></span> Pronto Atendimento (PA)</span>
       <span class="legend-item"><span class="legend-dot" style="background:#fbeaf0;border:1px solid #993556"></span> Maternidade (M)</span>
     </div>
     <div class="table-scroll">
@@ -1055,12 +1058,38 @@ const PROD_COLS = {
   all:[{key:"nm",lbl:"Nosso Médico"},{key:"up",lbl:"Smart UP"},{key:"fx",lbl:"Smart Flex"},{key:"sr",lbl:"Smart Rio"},{key:"s3",lbl:"Smart 300"},{key:"s5",lbl:"Smart 500"},{key:"pr",lbl:"Smart Prime"}]
 };
 
+// Núcleo MF = unidades exclusivas do plano Nosso Médico (identificadas no nome)
+function isNucleoMF(d){
+  return d.e==="NM" && d.n.toLowerCase().includes("núcleo mf");
+}
+// Rede própria Nosso Médico (exceto Núcleo MF) é compartilhada com todos os demais planos
+function isRedePropriaCompartilhada(d){
+  return d.e==="NM" && !isNucleoMF(d);
+}
+function ehCentroClinicoMedico(d){
+  const n = d.n.toLowerCase();
+  return n.includes("centro clínico") || n.includes("centro clinico")
+      || n.includes("centro médico") || n.includes("centro medico");
+}
+// Centro Clínico/Médico que opera 24h com Urgência/Emergência → é, na prática, um Pronto-Socorro (PS)
+function isPSUrgencia24h(d){
+  return ehCentroClinicoMedico(d) && d.n.toLowerCase().includes("urgência/emergência") && d.n.toLowerCase().includes("24h");
+}
+// Centro Clínico/Médico 24h SEM urgência/emergência → Pronto Atendimento (PA)
+function isPA24h(d){
+  const n = d.n.toLowerCase();
+  return ehCentroClinicoMedico(d) && n.includes("24h") && !n.includes("urgência/emergência");
+}
+
 function prodMatch(d, produto){
   if(produto==="all") return true;
   // "Nosso Médico" (nm) refere-se à rede NM dedicada — só prestadores e:"NM"
   if(produto==="nm") return d.e==="NM";
   const map={up:d.up,fx:d.fx,pr:d.pr,sr:d.sr,s3:d.s3,s5:d.s5};
-  return !!map[produto];
+  if(map[produto]) return true;
+  // Rede própria NM (exceto Núcleo MF) aparece também nos demais planos
+  if(isRedePropriaCompartilhada(d)) return true;
+  return false;
 }
 
 function filtered(){
@@ -1087,6 +1116,11 @@ function sorted(data){
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 function currentCols(){
+  // Produto específico selecionado → mostrar somente a coluna daquele produto
+  if(state.produto!=="all"){
+    const found = PROD_COLS.all.find(c=>c.key===state.produto);
+    if(found) return [found];
+  }
   return state.estado==="RJ" ? PROD_COLS.RJ
     : state.estado==="NM" ? PROD_COLS.NM
     : state.estado==="SP" ? PROD_COLS.SP
@@ -1159,7 +1193,9 @@ function render(){
       const allCob = d.cob ? Object.values(d.cob).join("-") : "";
       let tipoLabel, tipoClass;
 
-      if(d.tipo==="lab" && (sufixo.includes("núcleo")||sufixo.includes("nucleo"))){ tipoLabel="Núcleo MF"; tipoClass="tipo-nmf"; }
+      if(isPSUrgencia24h(d)){ tipoLabel="Pronto-Socorro"; tipoClass="tipo-ps"; }
+      else if(isPA24h(d)){ tipoLabel="Pronto Atendimento"; tipoClass="tipo-pa"; }
+      else if(d.tipo==="lab" && (sufixo.includes("núcleo")||sufixo.includes("nucleo"))){ tipoLabel="Núcleo MF"; tipoClass="tipo-nmf"; }
       else if(d.tipo==="lab" && (sufixo.includes("centro clínico")||sufixo.includes("centro clinico"))){ tipoLabel="Centro Clínico"; tipoClass="tipo-cc"; }
       else if(d.tipo==="lab"){ tipoLabel="Lab"; tipoClass="tipo-lab"; }
       else if(sufixo.includes("centro clínico")||sufixo.includes("centro clinico")){ tipoLabel="Centro Clínico"; tipoClass="tipo-cc"; }
@@ -1172,9 +1208,28 @@ function render(){
 
       // ── Célula de cada produto: cobertura detalhada ou ✓/– ──
       function coverCell(key){
-        if(!d[key]) return `<td style="text-align:center"><span class="dash">–</span></td>`;
-        // Cobertura específica do produto
-        const cobStr = (d.cob && d.cob[key]) ? d.cob[key] : "";
+        const nativo = !!d[key];
+        // Rede própria Nosso Médico (exceto Núcleo MF): disponível em todos os planos
+        const compartilhado = !nativo && isRedePropriaCompartilhada(d);
+        if(!nativo && !compartilhado){
+          return `<td style="text-align:center"><span class="dash">–</span></td>`;
+        }
+        // Centro Clínico/Médico 24h com Urgência/Emergência → apresentar como PS
+        if(isPSUrgencia24h(d)){
+          return `<td style="text-align:center">${buildCob("PS")}</td>`;
+        }
+        // Centro Clínico/Médico 24h (sem urgência/emergência) → apresentar como PA
+        if(isPA24h(d)){
+          return `<td style="text-align:center">${buildCob("PA")}</td>`;
+        }
+        // Centro Clínico / Centro Médico (ambulatorial): mostra "participante" (✓), nunca "H"
+        if(tipoLabel==="Centro Clínico"){
+          return `<td style="text-align:center">${yn(1)}</td>`;
+        }
+        // Cobertura a exibir: da própria coluna, ou a cobertura NM (rede própria compartilhada)
+        const cobStr = compartilhado
+          ? ((d.cob && d.cob.nm) ? d.cob.nm : "")
+          : ((d.cob && d.cob[key]) ? d.cob[key] : "");
         if(cobStr && cobStr!=="–"){
           return `<td style="text-align:center">${buildCob(cobStr)}</td>`;
         }
@@ -1242,6 +1297,7 @@ function buildCob(v){
   const parts = v.split("-").map(p=>{
     if(p==="H")  return `<span class="cob-h">H</span>`;
     if(p==="PS") return `<span class="cob-ps">PS</span>`;
+    if(p==="PA") return `<span class="cob-pa">PA</span>`;
     if(p==="M")  return `<span class="cob-m">MT</span>`;
     return "";
   }).filter(Boolean);
