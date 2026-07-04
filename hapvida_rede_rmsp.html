@@ -1116,13 +1116,33 @@ function render(){
     tbody.innerHTML = pageData.map(d=>{
       // Determinar tipo real do prestador
 let tipoLabel, tipoClass;
-if(d.tipo==="lab"){
+// Detectar sufixo de categoria no nome (após "–")
+let sufixoTipo = "";
+if(d.n.includes("–")) sufixoTipo = d.n.split("–").pop().trim().toLowerCase();
+const sufNucleo = sufixoTipo.includes("núcleo") || sufixoTipo.includes("nucleo");
+const sufCentroCli = sufixoTipo.includes("centro clínico") || sufixoTipo.includes("centro clinico");
+
+if(d.tipo==="lab" && sufNucleo){
+  tipoLabel = "Núcleo MF"; tipoClass = "tipo-nmf";
+} else if(d.tipo==="lab" && sufCentroCli){
+  tipoLabel = "Centro Clínico"; tipoClass = "tipo-cc";
+} else if(d.tipo==="lab"){
   tipoLabel = "Lab"; tipoClass = "tipo-lab";
 } else {
-  // Verificar cobertura real ou nome para PS puro
+  // Verificar cobertura real ou nome
   const cob = d.cob || {};
   const cobVals = Object.values(cob).join("-");
   const nomeLower = d.n.toLowerCase();
+
+  // Categoria explícita no sufixo do nome (após "–"), usada por prestadores Nosso Médico
+  // Ex: "Centro Clínico Diadema 24H – Centro Clínico"
+  let sufixo = "";
+  if(d.n.includes("–")){
+    sufixo = d.n.split("–").pop().trim().toLowerCase();
+  } else if(d.n.includes("-") && d.e==="NM"){
+    sufixo = d.n.split("-").pop().trim().toLowerCase();
+  }
+
   const isPsOnly = (cobVals && !cobVals.includes("H") && cobVals.includes("PS"))
     || nomeLower.includes("pronto atendimento")
     || nomeLower.includes("pronto-atendimento")
@@ -1131,8 +1151,26 @@ if(d.tipo==="lab"){
   const hasMatern = cobVals.includes("M") || nomeLower.includes("maternidade");
   const hasPs = cobVals.includes("PS") || nomeLower.includes("pronto");
 
+  // O sufixo tem prioridade para classificar a categoria do prestador NM
+  const sufCentroClinico = sufixo.includes("centro clínico") || sufixo.includes("centro clinico");
+  const sufNucleoMF = sufixo.includes("núcleo") || sufixo.includes("nucleo");
+  const sufLab = sufixo.includes("laboratório") || sufixo.includes("laboratorio");
+  const sufUrgencia = sufixo.includes("urgência") || sufixo.includes("urgencia")
+    || sufixo.includes("emergência") || sufixo.includes("emergencia");
+
   if(isPsOnly){
     tipoLabel = "Pronto-Socorro"; tipoClass = "tipo-ps";
+  } else if(sufUrgencia){
+    // Urgência/Emergência: usar cobertura real (H+PS, H+M+PS etc)
+    if(hasMatern && hasPs){ tipoLabel = "H + M + PS"; tipoClass = "tipo-hm"; }
+    else if(hasPs){ tipoLabel = "H + PS"; tipoClass = "tipo-hps"; }
+    else { tipoLabel = "Hospital"; tipoClass = "tipo-hosp"; }
+  } else if(sufCentroClinico){
+    tipoLabel = "Centro Clínico"; tipoClass = "tipo-cc";
+  } else if(sufNucleoMF){
+    tipoLabel = "Núcleo MF"; tipoClass = "tipo-nmf";
+  } else if(sufLab){
+    tipoLabel = "Laboratório"; tipoClass = "tipo-lab";
   } else if(hasMatern && hasPs){
     tipoLabel = "H + M + PS"; tipoClass = "tipo-hm";
   } else if(hasMatern){
