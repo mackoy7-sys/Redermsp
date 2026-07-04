@@ -89,6 +89,11 @@ tr:hover td{background:#fafbfc}
 .pill-no{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#f3f4f6;color:#d1d5db;font-size:12px}
 .tipo-hosp{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--info-bg);color:var(--info);font-weight:600}
 .tipo-lab{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:var(--success-bg);color:var(--success);font-weight:600}
+.tipo-ps{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#faeeda;color:#854f0b;font-weight:600}
+.tipo-hps{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#ede9fe;color:#5b21b6;font-weight:600}
+.tipo-hm{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#fbeaf0;color:#993556;font-weight:600}
+.tipo-cc{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#e0e7ff;color:#3730a3;font-weight:600}
+.tipo-nmf{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;background:#dcfce7;color:#166534;font-weight:600}
 .cob-h{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--info-bg);color:var(--info);font-weight:600;margin:1px}
 .cob-ps{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--warn-bg);color:var(--warn);font-weight:600;margin:1px}
 .cob-m{display:inline-block;font-size:10px;padding:1px 5px;border-radius:3px;background:#fbeaf0;color:#993556;font-weight:600;margin:1px}
@@ -216,11 +221,10 @@ tr:hover td{background:#fafbfc}
     <div class="table-scroll">
       <table>
         <thead>
-          <tr>
+          <tr id="thead-row">
             <th onclick="sortBy('c')" id="th-c">Cidade <span id="s-c"></span></th>
             <th onclick="sortBy('n')" id="th-n">Prestador <span id="s-n"></span></th>
-            <th>Tipo</th>
-            <th id="th-produtos" style="text-align:left;font-size:10px">Produtos disponíveis</th>
+            <!-- colunas de produto inseridas via JS -->
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -1070,15 +1074,22 @@ function currentCols(){
     : PROD_COLS.all;
 }
 function updateHeaders(){
-  const th = document.getElementById("th-produtos");
-  if(!th) return;
-  if(state.produto!=="all"){
-    const cols = currentCols();
-    const c = cols.find(x=>x.key===state.produto);
-    th.textContent = c ? c.lbl : "Produto";
-  } else {
-    th.textContent = "Produtos disponíveis";
-  }
+  const row = document.getElementById("thead-row");
+  if(!row) return;
+  // manter Cidade e Prestador (2 primeiros), remover th de produto antigos
+  while(row.children.length > 2) row.removeChild(row.lastChild);
+  const cols = currentCols();
+  cols.forEach(col=>{
+    const th = document.createElement("th");
+    th.style.textAlign = "center";
+    th.style.fontSize = "10px";
+    th.style.cursor = "pointer";
+    th.style.whiteSpace = "nowrap";
+    th.onclick = ()=>sortBy(col.key);
+    const arrow = state.sortKey===col.key ? (state.sortDir===1?" ▲":" ▼") : "";
+    th.innerHTML = col.lbl + `<span style="color:var(--primary)">${arrow}</span>`;
+    row.appendChild(th);
+  });
 }
 
 function render(){
@@ -1114,74 +1125,8 @@ function render(){
   } else {
     noR.style.display="none";
     tbody.innerHTML = pageData.map(d=>{
-      // Determinar tipo real do prestador
-let tipoLabel, tipoClass;
-// Detectar sufixo de categoria no nome (após "–")
-let sufixoTipo = "";
-if(d.n.includes("–")) sufixoTipo = d.n.split("–").pop().trim().toLowerCase();
-const sufNucleo = sufixoTipo.includes("núcleo") || sufixoTipo.includes("nucleo");
-const sufCentroCli = sufixoTipo.includes("centro clínico") || sufixoTipo.includes("centro clinico");
+      const cols = currentCols();
 
-if(d.tipo==="lab" && sufNucleo){
-  tipoLabel = "Núcleo MF"; tipoClass = "tipo-nmf";
-} else if(d.tipo==="lab" && sufCentroCli){
-  tipoLabel = "Centro Clínico"; tipoClass = "tipo-cc";
-} else if(d.tipo==="lab"){
-  tipoLabel = "Lab"; tipoClass = "tipo-lab";
-} else {
-  // Verificar cobertura real ou nome
-  const cob = d.cob || {};
-  const cobVals = Object.values(cob).join("-");
-  const nomeLower = d.n.toLowerCase();
-
-  // Categoria explícita no sufixo do nome (após "–"), usada por prestadores Nosso Médico
-  // Ex: "Centro Clínico Diadema 24H – Centro Clínico"
-  let sufixo = "";
-  if(d.n.includes("–")){
-    sufixo = d.n.split("–").pop().trim().toLowerCase();
-  } else if(d.n.includes("-") && d.e==="NM"){
-    sufixo = d.n.split("-").pop().trim().toLowerCase();
-  }
-
-  const isPsOnly = (cobVals && !cobVals.includes("H") && cobVals.includes("PS"))
-    || nomeLower.includes("pronto atendimento")
-    || nomeLower.includes("pronto-atendimento")
-    || nomeLower.includes("pronto socorro")
-    || nomeLower.includes("pronto-socorro");
-  const hasMatern = cobVals.includes("M") || nomeLower.includes("maternidade");
-  const hasPs = cobVals.includes("PS") || nomeLower.includes("pronto");
-
-  // O sufixo tem prioridade para classificar a categoria do prestador NM
-  const sufCentroClinico = sufixo.includes("centro clínico") || sufixo.includes("centro clinico");
-  const sufNucleoMF = sufixo.includes("núcleo") || sufixo.includes("nucleo");
-  const sufLab = sufixo.includes("laboratório") || sufixo.includes("laboratorio");
-  const sufUrgencia = sufixo.includes("urgência") || sufixo.includes("urgencia")
-    || sufixo.includes("emergência") || sufixo.includes("emergencia");
-
-  if(isPsOnly){
-    tipoLabel = "Pronto-Socorro"; tipoClass = "tipo-ps";
-  } else if(sufUrgencia){
-    // Urgência/Emergência: usar cobertura real (H+PS, H+M+PS etc)
-    if(hasMatern && hasPs){ tipoLabel = "H + M + PS"; tipoClass = "tipo-hm"; }
-    else if(hasPs){ tipoLabel = "H + PS"; tipoClass = "tipo-hps"; }
-    else { tipoLabel = "Hospital"; tipoClass = "tipo-hosp"; }
-  } else if(sufCentroClinico){
-    tipoLabel = "Centro Clínico"; tipoClass = "tipo-cc";
-  } else if(sufNucleoMF){
-    tipoLabel = "Núcleo MF"; tipoClass = "tipo-nmf";
-  } else if(sufLab){
-    tipoLabel = "Laboratório"; tipoClass = "tipo-lab";
-  } else if(hasMatern && hasPs){
-    tipoLabel = "H + M + PS"; tipoClass = "tipo-hm";
-  } else if(hasMatern){
-    tipoLabel = "H + Maternidade"; tipoClass = "tipo-hm";
-  } else if(hasPs){
-    tipoLabel = "H + PS"; tipoClass = "tipo-hps";
-  } else {
-    tipoLabel = "Hospital"; tipoClass = "tipo-hosp";
-  }
-}
-const tipo = `<span class="${tipoClass}">${tipoLabel}</span>`;
       // Badge de estado
       const estadoBadge = d.e==="RJ"
         ? `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#fef3c7;color:#92400e;font-weight:600;margin-left:4px">RJ</span>`
@@ -1189,26 +1134,44 @@ const tipo = `<span class="${tipoClass}">${tipoLabel}</span>`;
         ? `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#dcfce7;color:#166534;font-weight:600;margin-left:4px">NM</span>`
         : `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#ede9fe;color:#5b21b6;font-weight:600;margin-left:4px">SP</span>`;
 
-      // Coluna única de produtos: badges dos produtos que o prestador aceita
-      const cols = currentCols();
-      let prodCell;
-      if(state.produto!=="all"){
-        if(d.tipo==="hosp" && d.cob && d.cob[state.produto]){
-          prodCell = buildCob(d.cob[state.produto]||"–");
-        } else {
-          prodCell = d[state.produto] ? `<span class="prod-badge prod-on">Disponível</span>` : `<span class="dash">–</span>`;
+      // Célula de cobertura para um produto específico
+      function coverCell(key){
+        const disponivel = d[key];
+        if(!disponivel) return `<td style="text-align:center"><span class="dash">–</span></td>`;
+
+        // Laboratórios / Núcleo / Centro: mostrar rótulo de categoria
+        const nome = d.n.toLowerCase();
+        let sufixo = d.n.includes("–") ? d.n.split("–").pop().trim().toLowerCase() : "";
+
+        if(d.tipo==="lab"){
+          if(sufixo.includes("núcleo")||sufixo.includes("nucleo")) return `<td style="text-align:center">${tag("Núcleo MF","nmf")}</td>`;
+          if(sufixo.includes("centro clínico")||sufixo.includes("centro clinico")) return `<td style="text-align:center">${tag("Centro Clínico","cc")}</td>`;
+          return `<td style="text-align:center">${tag("Lab","lab")}</td>`;
         }
-      } else {
-        const accepted = cols.filter(c=>d[c.key]);
-        if(accepted.length===0){
-          prodCell = `<span class="dash">–</span>`;
-        } else {
-          prodCell = accepted.map(c=>{
-            const cob = (d.tipo==="hosp" && d.cob && d.cob[c.key] && d.cob[c.key]!=="–") ? ` <span style="opacity:.6;font-size:9px">${d.cob[c.key]}</span>` : "";
-            return `<span class="prod-badge prod-on" title="${c.lbl}">${c.lbl}${cob}</span>`;
-          }).join(" ");
+
+        // Hospitais: usar a cobertura específica do produto (cob[key]) ou o sufixo NM
+        let cobStr = (d.cob && d.cob[key]) ? d.cob[key] : "";
+
+        // Se for prestador NM com sufixo de categoria não-hospitalar
+        if(d.e==="NM"){
+          if(sufixo.includes("centro clínico")||sufixo.includes("centro clinico")) return `<td style="text-align:center">${tag("Centro Clínico","cc")}</td>`;
+          if(sufixo.includes("núcleo")||sufixo.includes("nucleo")) return `<td style="text-align:center">${tag("Núcleo MF","nmf")}</td>`;
+          if(sufixo.includes("laboratório")||sufixo.includes("laboratorio")) return `<td style="text-align:center">${tag("Lab","lab")}</td>`;
         }
+
+        // Pronto atendimento/socorro no nome
+        if(nome.includes("pronto atendimento")||nome.includes("pronto socorro")){
+          return `<td style="text-align:center">${tag("Pronto-Socorro","ps")}</td>`;
+        }
+
+        if(!cobStr || cobStr==="–"){
+          // disponível mas sem detalhe de cobertura → check simples
+          return `<td style="text-align:center">${yn(1)}</td>`;
+        }
+        return `<td style="text-align:center">${buildCob(cobStr)}</td>`;
       }
+
+      const prodCells = cols.map(c=>coverCell(c.key)).join("");
 
       return `<tr>
         <td>
@@ -1217,8 +1180,7 @@ const tipo = `<span class="${tipoClass}">${tipoLabel}</span>`;
         <td>
           <div class="td-nome">${d.n}</div>
         </td>
-        <td>${tipo}</td>
-        <td style="text-align:left"><div style="display:flex;flex-wrap:wrap;gap:4px">${prodCell}</div></td>
+        ${prodCells}
       </tr>`;
     }).join("");
   }
@@ -1258,6 +1220,9 @@ function filtered_by_tab(tab){
   });
 }
 
+function tag(label, cls){
+  return `<span class="tipo-${cls}" style="font-size:10px;padding:1px 6px">${label}</span>`;
+}
 function yn(v){return v?`<span class="pill-yes">✓</span>`:`<span class="pill-no">–</span>`;}
 
 function buildCob(v){
