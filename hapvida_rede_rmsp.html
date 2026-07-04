@@ -915,7 +915,13 @@ const NM_HOSP = [
   {e:"NM",c:"Uberlândia",n:"Hospital Madrecor – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
   // Joinville (pág 42)
   {e:"NM",c:"Joinville",n:"Hospital Geral Joinville – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
-].map(d=>({...d,tipo:"hosp"}));
+].map(d=>{
+  const suf = d.n.includes("–") ? d.n.split("–").pop().trim().toLowerCase() : "";
+  const isMF = suf.includes("núcleo") || suf.includes("nucleo") || suf.includes("médico da família") || suf.includes("medico da familia") || suf.includes("médico de família") || suf.includes("medico de familia");
+  // Regra: unidades NM (exceto MF) presentes em todos os planos
+  const extra = isMF ? {} : {nm:1,up:1,fx:1,pr:1,sr:1,s3:1,s5:1};
+  return {...d,tipo:"hosp",...extra};
+});
 
 const NM_LAB = [
   // Limeira (pág 17)
@@ -1019,7 +1025,12 @@ const NM_LAB = [
   // Joinville (pág 42)
   {e:"NM",c:"Joinville",n:"Clínica Bucarein – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
   {e:"NM",c:"Joinville",n:"Núcleo MF Joinville – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
-].map(d=>({...d,tipo:"lab",cob:null}));
+].map(d=>{
+  const suf = d.n.includes("–") ? d.n.split("–").pop().trim().toLowerCase() : "";
+  const isMF = suf.includes("núcleo") || suf.includes("nucleo") || suf.includes("médico da família") || suf.includes("medico da familia") || suf.includes("médico de família") || suf.includes("medico de familia");
+  const extra = isMF ? {} : {nm:1,up:1,fx:1,pr:1,sr:1,s3:1,s5:1};
+  return {...d,tipo:"lab",cob:null,...extra};
+});
 
 
 
