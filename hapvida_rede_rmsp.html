@@ -224,6 +224,7 @@ tr:hover td{background:#fafbfc}
           <tr id="thead-row">
             <th onclick="sortBy('c')" id="th-c">Cidade <span id="s-c"></span></th>
             <th onclick="sortBy('n')" id="th-n">Prestador <span id="s-n"></span></th>
+            <th>Tipo</th>
             <!-- colunas de produto inseridas via JS -->
           </tr>
         </thead>
@@ -1076,8 +1077,8 @@ function currentCols(){
 function updateHeaders(){
   const row = document.getElementById("thead-row");
   if(!row) return;
-  // manter Cidade e Prestador (2 primeiros), remover th de produto antigos
-  while(row.children.length > 2) row.removeChild(row.lastChild);
+  // manter Cidade, Prestador e Tipo (3 primeiros), remover th de produto antigos
+  while(row.children.length > 3) row.removeChild(row.lastChild);
   const cols = currentCols();
   cols.forEach(col=>{
     const th = document.createElement("th");
@@ -1134,41 +1135,33 @@ function render(){
         ? `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#dcfce7;color:#166534;font-weight:600;margin-left:4px">NM</span>`
         : `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#ede9fe;color:#5b21b6;font-weight:600;margin-left:4px">SP</span>`;
 
-      // Célula de cobertura para um produto específico
+      // ── Determinar TIPO do prestador (coluna Tipo) ──
+      const nomeLow = d.n.toLowerCase();
+      let sufixo = d.n.includes("–") ? d.n.split("–").pop().trim().toLowerCase() : "";
+      const allCob = d.cob ? Object.values(d.cob).join("-") : "";
+      let tipoLabel, tipoClass;
+
+      if(d.tipo==="lab" && (sufixo.includes("núcleo")||sufixo.includes("nucleo"))){ tipoLabel="Núcleo MF"; tipoClass="tipo-nmf"; }
+      else if(d.tipo==="lab" && (sufixo.includes("centro clínico")||sufixo.includes("centro clinico"))){ tipoLabel="Centro Clínico"; tipoClass="tipo-cc"; }
+      else if(d.tipo==="lab"){ tipoLabel="Lab"; tipoClass="tipo-lab"; }
+      else if(sufixo.includes("centro clínico")||sufixo.includes("centro clinico")){ tipoLabel="Centro Clínico"; tipoClass="tipo-cc"; }
+      else if(sufixo.includes("núcleo")||sufixo.includes("nucleo")){ tipoLabel="Núcleo MF"; tipoClass="tipo-nmf"; }
+      else if(sufixo.includes("laboratório")||sufixo.includes("laboratorio")){ tipoLabel="Lab"; tipoClass="tipo-lab"; }
+      else if((allCob && !allCob.includes("H") && allCob.includes("PS")) || nomeLow.includes("pronto atendimento") || nomeLow.includes("pronto socorro")){ tipoLabel="Pronto-Socorro"; tipoClass="tipo-ps"; }
+      else { tipoLabel="Hospital"; tipoClass="tipo-hosp"; }
+
+      const tipoCell = `<span class="${tipoClass}">${tipoLabel}</span>`;
+
+      // ── Célula de cada produto: cobertura detalhada ou ✓/– ──
       function coverCell(key){
-        const disponivel = d[key];
-        if(!disponivel) return `<td style="text-align:center"><span class="dash">–</span></td>`;
-
-        // Laboratórios / Núcleo / Centro: mostrar rótulo de categoria
-        const nome = d.n.toLowerCase();
-        let sufixo = d.n.includes("–") ? d.n.split("–").pop().trim().toLowerCase() : "";
-
-        if(d.tipo==="lab"){
-          if(sufixo.includes("núcleo")||sufixo.includes("nucleo")) return `<td style="text-align:center">${tag("Núcleo MF","nmf")}</td>`;
-          if(sufixo.includes("centro clínico")||sufixo.includes("centro clinico")) return `<td style="text-align:center">${tag("Centro Clínico","cc")}</td>`;
-          return `<td style="text-align:center">${tag("Lab","lab")}</td>`;
+        if(!d[key]) return `<td style="text-align:center"><span class="dash">–</span></td>`;
+        // Cobertura específica do produto
+        const cobStr = (d.cob && d.cob[key]) ? d.cob[key] : "";
+        if(cobStr && cobStr!=="–"){
+          return `<td style="text-align:center">${buildCob(cobStr)}</td>`;
         }
-
-        // Hospitais: usar a cobertura específica do produto (cob[key]) ou o sufixo NM
-        let cobStr = (d.cob && d.cob[key]) ? d.cob[key] : "";
-
-        // Se for prestador NM com sufixo de categoria não-hospitalar
-        if(d.e==="NM"){
-          if(sufixo.includes("centro clínico")||sufixo.includes("centro clinico")) return `<td style="text-align:center">${tag("Centro Clínico","cc")}</td>`;
-          if(sufixo.includes("núcleo")||sufixo.includes("nucleo")) return `<td style="text-align:center">${tag("Núcleo MF","nmf")}</td>`;
-          if(sufixo.includes("laboratório")||sufixo.includes("laboratorio")) return `<td style="text-align:center">${tag("Lab","lab")}</td>`;
-        }
-
-        // Pronto atendimento/socorro no nome
-        if(nome.includes("pronto atendimento")||nome.includes("pronto socorro")){
-          return `<td style="text-align:center">${tag("Pronto-Socorro","ps")}</td>`;
-        }
-
-        if(!cobStr || cobStr==="–"){
-          // disponível mas sem detalhe de cobertura → check simples
-          return `<td style="text-align:center">${yn(1)}</td>`;
-        }
-        return `<td style="text-align:center">${buildCob(cobStr)}</td>`;
+        // disponível sem detalhe → check
+        return `<td style="text-align:center">${yn(1)}</td>`;
       }
 
       const prodCells = cols.map(c=>coverCell(c.key)).join("");
@@ -1180,6 +1173,7 @@ function render(){
         <td>
           <div class="td-nome">${d.n}</div>
         </td>
+        <td>${tipoCell}</td>
         ${prodCells}
       </tr>`;
     }).join("");
@@ -1227,12 +1221,13 @@ function yn(v){return v?`<span class="pill-yes">✓</span>`:`<span class="pill-n
 
 function buildCob(v){
   if(!v||v==="–") return `<span style="color:#ccc;font-size:11px">–</span>`;
-  return v.split("-").map(p=>{
+  const parts = v.split("-").map(p=>{
     if(p==="H")  return `<span class="cob-h">H</span>`;
     if(p==="PS") return `<span class="cob-ps">PS</span>`;
-    if(p==="M")  return `<span class="cob-m">M</span>`;
+    if(p==="M")  return `<span class="cob-m">MT</span>`;
     return "";
-  }).join("");
+  }).filter(Boolean);
+  return `<span style="display:inline-flex;gap:2px;align-items:center;flex-wrap:wrap;justify-content:center">${parts.join("")}</span>`;
 }
 
 function renderPagination(total){
