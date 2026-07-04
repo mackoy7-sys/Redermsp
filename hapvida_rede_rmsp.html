@@ -1041,7 +1041,9 @@ const PROD_COLS = {
 
 function prodMatch(d, produto){
   if(produto==="all") return true;
-  const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr,sr:d.sr,s3:d.s3,s5:d.s5};
+  // "Nosso Médico" (nm) refere-se à rede NM dedicada — só prestadores e:"NM"
+  if(produto==="nm") return d.e==="NM";
+  const map={up:d.up,fx:d.fx,pr:d.pr,sr:d.sr,s3:d.s3,s5:d.s5};
   return !!map[produto];
 }
 
