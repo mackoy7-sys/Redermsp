@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rede de Atendimento Hapvida – RMSP</title>
+<title>Rede de Atendimento Hapvida – SP | RJ | Nosso Médico</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 <style>
 :root{
@@ -127,8 +127,8 @@ tr:hover td{background:#fafbfc}
   <div class="hdr">
     <div class="hdr-left">
       <div>
-        <h1>Rede de Atendimento Hapvida NotreDame <span class="badge-vig">Vigência 01/06/2026</span></h1>
-        <p>Região Metropolitana de São Paulo — Hospitais e Laboratórios credenciados</p>
+        <h1>Rede de Atendimento Hapvida NotreDame — SP | RJ | Nosso Médico <span class="badge-vig">Vigência 01/06/2026</span></h1>
+        <p>SP, RJ e Nosso Médico — Hospitais, Laboratórios e Centros Clínicos credenciados</p>
       </div>
     </div>
   </div>
@@ -136,13 +136,25 @@ tr:hover td{background:#fafbfc}
   <!-- Filters -->
   <div class="filters-bar">
     <div class="fg">
+      <label>Estado</label>
+      <select id="f-estado">
+        <option value="all">Todos</option>
+        <option value="SP">SP – Maior Abrangência</option>
+        <option value="RJ">RJ – Maior Abrangência</option>
+        <option value="NM">Nosso Médico</option>
+      </select>
+    </div>
+    <div class="fg">
       <label>Produto</label>
       <select id="f-produto">
         <option value="all">Todos os produtos</option>
-        <option value="nm">Nosso Médico RMSP</option>
+        <option value="nm">Nosso Médico</option>
         <option value="up">Smart UP</option>
         <option value="fx">Smart Flex</option>
         <option value="pr">Smart Prime</option>
+        <option value="sr">Smart Rio</option>
+        <option value="s3">Smart 300</option>
+        <option value="s5">Smart 500</option>
       </select>
     </div>
     <div class="fg">
@@ -208,10 +220,7 @@ tr:hover td{background:#fafbfc}
             <th onclick="sortBy('c')" id="th-c">Cidade <span id="s-c"></span></th>
             <th onclick="sortBy('n')" id="th-n">Prestador <span id="s-n"></span></th>
             <th>Tipo</th>
-            <th onclick="sortBy('nm')" style="text-align:center">Nosso Médico <span id="s-nm"></span></th>
-            <th onclick="sortBy('up')" style="text-align:center">Smart UP <span id="s-up"></span></th>
-            <th onclick="sortBy('fx')" style="text-align:center">Smart Flex <span id="s-fx"></span></th>
-            <th onclick="sortBy('pr')" style="text-align:center">Smart Prime <span id="s-pr"></span></th>
+            <th id="th-produtos" style="text-align:left;font-size:10px">Produtos disponíveis</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -343,7 +352,97 @@ const HOSP = [
   {c:"Itu",n:"Pronto Atendimento Itu",nm:1,up:1,fx:1,pr:1,cob:{nm:"PS",up:"PS",fx:"PS",pr:"PS"}},
   {c:"Praia Grande",n:"Casa de Saude de Santos (PA)",nm:0,up:0,fx:1,pr:1,cob:{nm:"–",up:"–",fx:"H-PS",pr:"H-PS"}},
   {c:"Santa Bárbara d'Oeste",n:"Hospital Santa Barbara",nm:0,up:0,fx:0,pr:1,cob:{nm:"–",up:"–",fx:"–",pr:"H"}},
-].map(d=>({...d,tipo:"hosp"}));
+
+  // ── RIO DE JANEIRO ─────────────────────────────────────────────────────────
+  {e:"RJ",c:"Rio de Janeiro",n:"Pronto Atendimento Cidade Nova",sr:1,s3:1,s5:1,pr:1,cob:{sr:"PS",s3:"PS",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Pronto Atendimento Zona Oeste",sr:1,s3:1,s5:1,pr:1,cob:{sr:"PS",s3:"PS",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Notrecare Rio",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital da Mulher Jacarepagua",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Infantil Jacarepagua",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital de Clinicas",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Cemeru",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Americas Oftalmocenter Tijuca",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Israelita Albert Sabin",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Sao Francisco na Prov",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Barra Day",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Clinica Grajau",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Casa Saude N S do Carmo",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Tijutrauma",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Cirurgica Sta Barbara",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Cristo Rei",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica da Gavea",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Sao Carlos",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Clinica Sao Vicente",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Jacarepagua",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Riomar",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital de Iraja",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Di Camp",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Balbino",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Sao Lucas",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"IBOL Botafogo",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Quali Ipanema",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Centro Pediatrico da Lagoa",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Jardim de Alah Cirurgico",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Oftalclin Dr Antonio Lobo",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Policlinica de Botafogo",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Procor Pronto Socorro",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Prontobaby Hospital da Crianca",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Pro Oftalmo Micro Cir",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Rio de Janeiro",n:"Hospital Bangu",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Angra dos Reis",n:"Hospital de Praia Brava",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Araruama",n:"Hospital das Clinicas dos Lagos",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Barra do Pirai",n:"Casa de Caridade Santa Rita",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Barra Mansa",n:"Casa de Saude Santa Maria",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Cabo Frio",n:"Clipel Pediatria Lagos",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Cabo Frio",n:"Hospital Santa Izabel",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"UTI Neonatal Nicola Albano",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Clinica Lilia Neves",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Hospital Geral Pronto Cardio",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Hospital Dr Beda",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Coracao - D. Caxias",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Geral de Fatima HGF",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Mario Lioni",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Duque de Caxias",n:"Hospital Daniel Lipp",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Itaguai",n:"Hospital Cemeru",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Itaperuna",n:"Hospital Sao Jose do Avai",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Macae",n:"Clinica Sao Lucas",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"Mesquita",n:"Hospital Clinicas Jucelino",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Casa Saude Santa Martha",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-M-PS",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Nilópolis",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Nilópolis",n:"Hospital Domingos Lourenco",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Clinicas Alameda",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Olhos Niteroi",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Niterói",n:"Clinica Luiz Pires Mello",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Clinica Pater Saude Mental",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Clinicas do Inga",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"Hospital de Olhos Santa Beatriz",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Niterói",n:"CHN Hospitalar Niteroi",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H-M-PS",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Nova Friburgo",n:"Hospital Serrano",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Casa Saude Nsa Sra Fatima",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Emcor - Hosp do Coracao",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Nova Iguaçu",n:"Hospital Geral Prontonil",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Paracambi",n:"Casa de Saude Paracambi",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Petrópolis",n:"Hospital de Clinicas de Correas",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Petrópolis",n:"Beneficencia Portuguesa",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Resende",n:"Samer Hospital",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-M-PS",pr:"H-M-PS"}},
+  {e:"RJ",c:"Rio das Ostras",n:"Hospital Grand Mater",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"São Fidélis",n:"Hospital Armando Vidal",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"São Gonçalo",n:"Pronto Atendimento Sao Goncalo",sr:1,s3:1,s5:1,pr:1,cob:{sr:"PS",s3:"PS",s5:"PS",pr:"PS"}},
+  {e:"RJ",c:"São Gonçalo",n:"Hospital de Olhos Niteroi",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H",s3:"H",s5:"H",pr:"H"}},
+  {e:"RJ",c:"São João de Meriti",n:"Hospital Terezinha de Jesus",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"São João de Meriti",n:"Hospital de Olhos do Meier",sr:1,s3:1,s5:1,pr:1,cob:{sr:"H-PS",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Seropédica",n:"Hospital Cemeru",sr:0,s3:1,s5:1,pr:1,cob:{sr:"–",s3:"H-PS",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Teresópolis",n:"Hospital Sao Jose",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Teresópolis",n:"Benef. Portuguesa Teresopolis",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Três Rios",n:"Hospital N. Sra da Conceicao",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Vassouras",n:"CIS Centro Integrado de Saude",sr:0,s3:0,s5:0,pr:1,cob:{sr:"–",s3:"–",s5:"–",pr:"H-PS"}},
+  {e:"RJ",c:"Volta Redonda",n:"HINJA",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Volta Redonda",n:"Hospital Viver Mais",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+  {e:"RJ",c:"Volta Redonda",n:"Hospital Santa Cecilia",sr:0,s3:0,s5:1,pr:1,cob:{sr:"–",s3:"–",s5:"H-PS",pr:"H-PS"}},
+].map(d=>({...d,tipo:"hosp",e:d.e||"SP",nm:d.nm||0,up:d.up||0,fx:d.fx||0,pr:d.pr||0,sr:d.sr||0,s3:d.s3||0,s5:d.s5||0}));
 
 const LAB = [
   // SÃO PAULO
@@ -570,25 +669,384 @@ const LAB = [
   {c:"Vinhedo",n:"Sabin Diagnostico e Saude",nm:0,up:1,fx:1,pr:1},
   // VOTORANTIM
   {c:"Votorantim",n:"Souza Areas Lab Analises",nm:0,up:1,fx:1,pr:1},
+
+  // ── RIO DE JANEIRO – LABORATÓRIOS ──────────────────────────────────────────
+  {e:"RJ",c:"Rio de Janeiro",n:"Unidade Avancada Cidade Nova",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Arterius Diagnosticos",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Cegemerj Barra",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Centro de Diagnosticos Galeao",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Diagnostic Lab Anal Clin",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"DLC Diagnosticos",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Eliel Figueiredo",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Endomais",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Exclusive Health Lab",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio Ferrari",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labi Exames Taquara",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio Biomedico Centro",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labormed Campo Grande",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Labormed Copacabana",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio de Patologia HE",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Laboratorio Lapac",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Neurolife Laboratorios",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Pro Echo Cardiodata",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Rio de Janeiro",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Angra dos Reis",n:"Laboratorio Angralab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Araruama",n:"Exata Lab Analises",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Armação dos Búzios",n:"Laboratorio O. S. Rezende",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Barra do Pirai",n:"Laboratorio Medico Dr Falcao",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Barra Mansa",n:"Diagnolab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Barra Mansa",n:"J. C. Henriques Laboratorio",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Barra Mansa",n:"Laclin",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Belford Roxo",n:"Labormed Laboratorios Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Belford Roxo",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Alpha Laboratorio",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Centro de Diagnostico Citologico",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Laboratorio CDC",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Cabo Frio",n:"Laboratorio O S Rezende",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Bedalab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Hemoclin",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Campos dos Goytacazes",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Cardoso Moreira",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Exclusive Health Lab",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Duque de Caxias",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Itaboraí",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Itaboraí",n:"Gram Laboratorio",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Itaguaí",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Itaguaí",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Diagnostico Laboratorial",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Macaé",n:"Hemolabes",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Magé",n:"Cevimar Lab Anal Clin",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Magé",n:"Lace",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Labormed Centro Niteroi",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Laboratorio Dom Bosco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Maricá",n:"Vallab Analises Clinicas",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Nilópolis",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nilópolis",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Nilópolis",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Cegemerj",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Alta Diagnostico Icarai",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Labi Exames Taquara",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Labormed Centro Niteroi",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Laboratorio Dom Bosco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Pro Echo Cardiodata",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Niterói",n:"Dr Kanaan",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Labormed Lab Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Dr Emmerson Lab Imagem",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Lab Dr Emmerson Luiz",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Laboratorio Emmerson",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Labormed Laboratorios Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Nova Iguaçu",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Petrópolis",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Petrópolis",n:"Lab Dr Homero Soares",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Petrópolis",n:"Baffi Medicina Laboratorial",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Porto Real",n:"Ferreira Passini Lab",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Quissamã",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Resende",n:"Ferreira Passini Lab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Resende",n:"Falcao Medicina Laboratorial",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Rio Bonito",n:"Gram Medicina Laboratorial",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"Rio das Ostras",n:"Duo Diagnosticos",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São Fidélis",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São Francisco de Itabapoana",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Blessing Medicina Itaipu",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Centro de Diagnosticos Galeao",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Labormed Centro Niteroi",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Laboratorio Dom Bosco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São Gonçalo",n:"Pro Echo Cardiodata",sr:1,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São João da Barra",n:"Laboratorio Plinio Bacelar",sr:0,s3:0,s5:0,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Sérgio Franco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Labormed Laboratorios Medicos",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"São João de Meriti",n:"Riolabor Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Teresópolis",n:"Bronstein",sr:0,s3:1,s5:1,pr:1},
+  {e:"RJ",c:"Teresópolis",n:"Inova Medicina Diagnostica",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Teresópolis",n:"Laboratorio Sao Lucas",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Três Rios",n:"Laboratorio Tinoco",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Três Rios",n:"Norat Laboratorio",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Cedov CT Densitometria",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Centrolab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Laboratorio Medico Diagnolab",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Labes",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Laboratorio Dr Falcao",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Anaclin",sr:0,s3:0,s5:1,pr:1},
+  {e:"RJ",c:"Volta Redonda",n:"Lapec",sr:0,s3:0,s5:0,pr:1},
+].map(d=>({...d,tipo:"lab",cob:null,e:d.e||"SP",nm:d.nm||0,up:d.up||0,fx:d.fx||0,pr:d.pr||0,sr:d.sr||0,s3:d.s3||0,s5:d.s5||0}));
+
+
+// ── NOSSO MÉDICO ────────────────────────────────────────────────────────────
+// Limeira (pág 17)
+const NM_HOSP = [
+  {e:"NM",c:"Limeira",n:"Hospital Medical – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  // São José dos Campos (pág 18)
+  {e:"NM",c:"São José dos Campos",n:"Clínica Attentis Jacareí – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São José dos Campos",n:"Hospital São José – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São José dos Campos",n:"Hospital Pediátrico – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  // Sertãozinho (pág 19)
+  {e:"NM",c:"Sertãozinho",n:"Hospital Netto Campello – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  // Ribeirão Preto (pág 20)
+  {e:"NM",c:"Ribeirão Preto",n:"Hospital Ribeirão Preto – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Ribeirão Preto",n:"São Francisco Rede de Saúde – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Ribeirão Preto",n:"PA Ribeirão Preto – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  // SP - Leste (pág 21)
+  {e:"NM",c:"São Paulo – Leste",n:"Hospital Salvalus – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Leste",n:"Centro Clínico Itaquera 24h – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Leste",n:"Centro Clínico São Gabriel 24h – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Leste",n:"Centro Clínico Analia Franco – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"São Paulo – Leste",n:"Centro Clínico São Miguel Centro – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // SP - Norte (pág 22)
+  {e:"NM",c:"São Paulo – Norte",n:"Hospital Mat. N. Sra. do Rosário – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Norte",n:"Centro Médico Santana – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Norte",n:"Centro Clínico Barra Funda 24H – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Norte",n:"Centro Clínico Zona Norte – Centro Clínico/Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // SP - Sul (pág 23)
+  {e:"NM",c:"São Paulo – Sul",n:"Hospital Bosque da Saúde – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Sul",n:"Centro Clínico Zona Sul 24H – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"São Paulo – Sul",n:"Centro Clínico Zona Sul – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"São Paulo – Sul",n:"Centro Clínico Interlagos – Centro Clínico/Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"São Paulo – Sul",n:"Centro Clínico Dom Pedro – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"São Paulo – Sul",n:"Centro Clínico Hermínio Lemos – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // ABC Paulista (pág 24)
+  {e:"NM",c:"ABC Paulista",n:"Hospital São Bernardo – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"ABC Paulista",n:"Hospital e Maternidade Intermédica – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-M-PS"}},
+  {e:"NM",c:"ABC Paulista",n:"Hospital Notrecare ABC – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"ABC Paulista",n:"Unidade Avançada Santo André 24H – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"ABC Paulista",n:"Centro Clínico Diadema 24H – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"ABC Paulista",n:"Centro Clínico Ribeirão Pires 24H – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"ABC Paulista",n:"Centro Clínico Santo André 2 – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"ABC Paulista",n:"Centro Médico Mauá 24H – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Guarulhos (pág 25)
+  {e:"NM",c:"Guarulhos",n:"Hospital e Maternidade Guarulhos – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-M-PS"}},
+  {e:"NM",c:"Guarulhos",n:"Centro Clínico Guarulhos I – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Guarulhos",n:"Centro Clínico Guarulhos II – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Itapevi (pág 26)
+  {e:"NM",c:"Itapevi",n:"Hospital Nova Vida – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Itapevi",n:"P.S. Barueri – Urgência/Emergência/Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Itapevi",n:"Centro Clínico Alphaville Centro – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Itapevi",n:"Centro Clínico Itapevi – Núcleo MF/Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Mogi das Cruzes (pág 27)
+  {e:"NM",c:"Mogi das Cruzes",n:"Hospital Santana – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Mogi das Cruzes",n:"Centro Clínico Suzano I – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Mogi das Cruzes",n:"Centro Clínico Mogi – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Mogi das Cruzes",n:"Centro Clínico Arujá 24H – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Osasco (pág 28)
+  {e:"NM",c:"Osasco",n:"Hospital Cruzeiro do Sul – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Osasco",n:"Unidade Avançada Osasco – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Osasco",n:"Centro Médico Osasco – Urgência/Emergência/Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Osasco",n:"Centro Clínico Alphaville – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Osasco",n:"Centro Clínico Carapicuíba – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Osasco",n:"Centro Clínico Santo Antônio – Núcleo MF/Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Taboão (pág 29)
+  {e:"NM",c:"Taboão da Serra",n:"Hospital Family – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Taboão da Serra",n:"Centro Médico Taboão 24H – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Taboão da Serra",n:"Centro Clínico Cotia 24H – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Taboão da Serra",n:"Centro Clínico Nova Vida Cotia – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Taboão da Serra",n:"Centro Médico Taboão da Serra – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Americana (pág 30)
+  {e:"NM",c:"Americana",n:"Hospital São Lucas – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Americana",n:"Espaço Saúde Americana – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Campinas (pág 31)
+  {e:"NM",c:"Campinas",n:"Hospital Renascença Campinas – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Campinas",n:"Centro Clínico Itapura – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Campinas",n:"Centro Clínico Andrade Neves I – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Campinas",n:"Centro Clínico Andrade Neves II – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Jundiaí (pág 32)
+  {e:"NM",c:"Jundiaí",n:"Hospital Paulo Sacramento – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Jundiaí",n:"Centro de Especialidades – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Jundiaí",n:"Centro Materno Infantil – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Sorocaba (pág 33)
+  {e:"NM",c:"Sorocaba",n:"Hospital Notrecare Sorocaba – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Sorocaba",n:"Hospital Modelo – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Sorocaba",n:"Centro Clínico Itavuvu – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Sorocaba",n:"Centro Clínico Penha Sorocaba – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Sorocaba",n:"Centro Clínico Rodrigues Pacheco – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Sorocaba",n:"Centro Clínico Trujillo I – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Balneário Camboriú / Itajaí (pág 34)
+  {e:"NM",c:"Balneário Camboriú",n:"Hospital do Coração Balneário Camboriú – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Balneário Camboriú",n:"Clínica Itajaí – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Fortaleza (pág 35)
+  {e:"NM",c:"Fortaleza",n:"Hospital Aldeota – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Fortaleza",n:"Hospital Antônio Prudente – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Fortaleza",n:"Hosp. e Maternidade Eugênia Pinheiro – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-M-PS"}},
+  {e:"NM",c:"Fortaleza",n:"Pronto Atendimento Parangaba – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"PS"}},
+  {e:"NM",c:"Fortaleza",n:"Clínica Barão de Studart – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Fortaleza",n:"Clínica Joaquim Távora – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Fortaleza",n:"Clínica Lobo Filho – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Fortaleza",n:"Clínica Rodrigues Júnior – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Londrina (pág 36)
+  {e:"NM",c:"Londrina",n:"Hospital Bela Suíça – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Londrina",n:"Clínica Paes Leme – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Maringá (pág 37)
+  {e:"NM",c:"Maringá",n:"Hospital Maringá – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  // Salvador (pág 38)
+  {e:"NM",c:"Salvador",n:"Hospital Tereza de Liseux – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  {e:"NM",c:"Salvador",n:"Pronto Atendimento Cajazeiras – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"PS"}},
+  {e:"NM",c:"Salvador",n:"Pronto Atendimento Uruguai – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"PS"}},
+  {e:"NM",c:"Salvador",n:"Clínica Costa Azul – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Salvador",n:"Clínica Pituba I – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Salvador",n:"Clínica Vasco da Gama – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  {e:"NM",c:"Salvador",n:"Clínica Parque Bela Vista – Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H"}},
+  // Teresina (pág 39)
+  {e:"NM",c:"Teresina",n:"Hospital e Maternidade Rio Poty – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-M-PS"}},
+  // Belo Horizonte (pág 40)
+  {e:"NM",c:"Belo Horizonte",n:"Hospital Octaviano – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  // Uberlândia (pág 41)
+  {e:"NM",c:"Uberlândia",n:"Hospital Madrecor – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+  // Joinville (pág 42)
+  {e:"NM",c:"Joinville",n:"Hospital Geral Joinville – Urgência/Emergência",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0,cob:{nm:"H-PS"}},
+].map(d=>({...d,tipo:"hosp"}));
+
+const NM_LAB = [
+  // Limeira (pág 17)
+  {e:"NM",c:"Limeira",n:"Hospital Medical – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Limeira",n:"Clínica Trajano – Núcleo MF/Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // São José dos Campos (pág 18)
+  {e:"NM",c:"São José dos Campos",n:"Clínica Attentis Jacareí – Laboratório/Centro Clínico",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São José dos Campos",n:"Medicina Preventiva São José – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São José dos Campos",n:"Clínica Centro Médico de Especialidade – Laboratório/Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Sertãozinho (pág 19)
+  {e:"NM",c:"Sertãozinho",n:"Hospital Netto Campello – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Sertãozinho",n:"Clínica Barão do Rio Branco – Laboratório/Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Ribeirão Preto (pág 20)
+  {e:"NM",c:"Ribeirão Preto",n:"Clínica Portugal – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Ribeirão Preto",n:"Medicina Preventiva Garibaldi – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Ribeirão Preto",n:"Clínica Mais – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // SP Leste (pág 21)
+  {e:"NM",c:"São Paulo – Leste",n:"Notrelabs Tatuapé – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São Paulo – Leste",n:"Notrelabs Itaquera – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São Paulo – Leste",n:"Unidade Avançada Salvalus – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São Paulo – Leste",n:"Centro Clínico Belém – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // SP Norte (pág 22)
+  {e:"NM",c:"São Paulo – Norte",n:"Notrelabs Tatuapé – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São Paulo – Norte",n:"Notrelabs Itaquera – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // SP Sul (pág 23)
+  {e:"NM",c:"São Paulo – Sul",n:"Notrelabs Interlagos – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São Paulo – Sul",n:"Notrelabs Ipiranga – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"São Paulo – Sul",n:"Notrelabs Santo Amaro – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // ABC Paulista (pág 24)
+  {e:"NM",c:"ABC Paulista",n:"Notrelabs Diadema – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"ABC Paulista",n:"Notrelabs Lucas Garcez – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"ABC Paulista",n:"Notrelabs Mauá Bandeirantes – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"ABC Paulista",n:"Qualivida ABC – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"ABC Paulista",n:"Unidade Avançada Santo André – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Guarulhos (pág 25)
+  {e:"NM",c:"Guarulhos",n:"Notrelabs Guarulhos – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Guarulhos",n:"Ambulatório Hospital Guarulhos – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Itapevi (pág 26)
+  {e:"NM",c:"Itapevi",n:"Notrelabs Alphaville – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Itapevi",n:"Notrelabs Itapevi – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Mogi das Cruzes (pág 27)
+  {e:"NM",c:"Mogi das Cruzes",n:"Notrelabs Suzano – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Mogi das Cruzes",n:"Notrelabs Arujá – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Mogi das Cruzes",n:"Notrelabs Mogi das Cruzes – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Mogi das Cruzes",n:"Espaço Notrelife – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Osasco (pág 28)
+  {e:"NM",c:"Osasco",n:"Notrelabs Alphaville – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Osasco",n:"Notrelabs Carapicuíba – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Osasco",n:"Notrelabs Osasco Autonomistas – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Osasco",n:"Centro Clínico Santo Antônio – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Taboão (pág 29)
+  {e:"NM",c:"Taboão da Serra",n:"Notrelabs Taboão – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Taboão da Serra",n:"Centro Médico Taboão – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Americana (pág 30)
+  {e:"NM",c:"Americana",n:"Notrelabs Paulista – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Americana",n:"Notrelabs Americana – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Americana",n:"Centro de Saúde Especializada – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Campinas (pág 31)
+  {e:"NM",c:"Campinas",n:"Notrelabs Campinas – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Campinas",n:"Qualivida Campinas – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Jundiaí (pág 32)
+  {e:"NM",c:"Jundiaí",n:"Notrelabs Jundiaí – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Jundiaí",n:"Centro Clínico Jundiaí | Qualivida – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Sorocaba (pág 33)
+  {e:"NM",c:"Sorocaba",n:"Notrelabs Ipanema – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Sorocaba",n:"Notrelabs Sorocaba – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Sorocaba",n:"Notrelabs Hosp Notrecare – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Sorocaba",n:"Espaço Notrelife – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Fortaleza (pág 35)
+  {e:"NM",c:"Fortaleza",n:"Diagnóstico Heráclito Graça – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Fortaleza",n:"Diagnóstico Parangaba – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Fortaleza",n:"Diagnóstico Conjunto Ceará – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Fortaleza",n:"Diagnóstico Padre Valdevino – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Fortaleza",n:"Médico de Família Rodrigues Jr – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Fortaleza",n:"Núcleo MSF Conjunto Ceará – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Fortaleza",n:"Núcleo MSF Montese – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Fortaleza",n:"Núcleo MSF Maracanaú – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Londrina (pág 36)
+  {e:"NM",c:"Londrina",n:"Núcleo Médico da Família Londrina – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Maringá (pág 37)
+  {e:"NM",c:"Maringá",n:"Núcleo Nosso Médico Maringá – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Salvador (pág 38)
+  {e:"NM",c:"Salvador",n:"Diagnóstico Lucaia – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Salvador",n:"Nosso Médico Garibaldi – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Teresina (pág 39)
+  {e:"NM",c:"Teresina",n:"Hapvida Diagnóstico Teresina – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Teresina",n:"Clínica Dib Tajra – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Belo Horizonte (pág 40)
+  {e:"NM",c:"Belo Horizonte",n:"Diagnóstico Barreiro – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Belo Horizonte",n:"Diagnóstico Avançada Betim – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Belo Horizonte",n:"Diagnóstico Lifecenter Contagem – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Belo Horizonte",n:"Núcleo MF Eldorado – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Belo Horizonte",n:"Núcleo MF Augusto – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Belo Horizonte",n:"Núcleo MF Betim – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Betim",n:"Diagnóstico Avançada Betim – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Contagem",n:"Diagnóstico Lifecenter Contagem – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Uberlândia (pág 41)
+  {e:"NM",c:"Uberlândia",n:"Diagnóstico Hospital Madrecor – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Uberlândia",n:"Núcleo MF Uberlândia – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Uberaba",n:"Diagnóstico Uberaba – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  // Joinville (pág 42)
+  {e:"NM",c:"Joinville",n:"Clínica Bucarein – Laboratório",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
+  {e:"NM",c:"Joinville",n:"Núcleo MF Joinville – Núcleo MF",nm:1,up:0,fx:0,pr:0,sr:0,s3:0,s5:0},
 ].map(d=>({...d,tipo:"lab",cob:null}));
 
-const ALL = [...HOSP, ...LAB];
+
+
+const ALL = [...HOSP, ...LAB, ...NM_HOSP, ...NM_LAB];
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
-let state = {tab:"todos", produto:"all", cidade:"all", search:"", sortKey:"c", sortDir:1, page:0};
+let state = {tab:"todos", produto:"all", estado:"all", cidade:"all", search:"", sortKey:"c", sortDir:1, page:0};
 const PAGE_SIZE = 50;
 let charts = {};
 
 // ─── FILTER ──────────────────────────────────────────────────────────────────
+// Mapeamento de produtos por estado
+const PROD_COLS = {
+  SP: [{key:"nm",lbl:"Nosso Médico"},{key:"up",lbl:"Smart UP"},{key:"fx",lbl:"Smart Flex"},{key:"pr",lbl:"Smart Prime"}],
+  RJ: [{key:"sr",lbl:"Smart Rio"},{key:"s3",lbl:"Smart 300"},{key:"s5",lbl:"Smart 500"},{key:"pr",lbl:"Smart Prime"}],
+  NM: [{key:"nm",lbl:"Nosso Médico"}],
+  all:[{key:"nm",lbl:"Nosso Médico"},{key:"up",lbl:"Smart UP"},{key:"fx",lbl:"Smart Flex"},{key:"sr",lbl:"Smart Rio"},{key:"s3",lbl:"Smart 300"},{key:"s5",lbl:"Smart 500"},{key:"pr",lbl:"Smart Prime"}]
+};
+
+function prodMatch(d, produto){
+  if(produto==="all") return true;
+  const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr,sr:d.sr,s3:d.s3,s5:d.s5};
+  return !!map[produto];
+}
+
 function filtered(){
-  const {tab, produto, cidade, search} = state;
+  const {tab, produto, estado, cidade, search} = state;
   return ALL.filter(d=>{
     if(tab==="hosp" && d.tipo!=="hosp") return false;
     if(tab==="lab"  && d.tipo!=="lab")  return false;
-    if(produto!=="all"){
-      const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr};
-      if(!map[produto]) return false;
-    }
+    if(estado!=="all" && d.e!==estado) return false;
+    if(!prodMatch(d, produto)) return false;
     if(cidade!=="all" && d.c!==cidade) return false;
     if(search && !d.n.toLowerCase().includes(search)) return false;
     return true;
@@ -605,7 +1063,26 @@ function sorted(data){
 }
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
+function currentCols(){
+  return state.estado==="RJ" ? PROD_COLS.RJ
+    : state.estado==="NM" ? PROD_COLS.NM
+    : state.estado==="SP" ? PROD_COLS.SP
+    : PROD_COLS.all;
+}
+function updateHeaders(){
+  const th = document.getElementById("th-produtos");
+  if(!th) return;
+  if(state.produto!=="all"){
+    const cols = currentCols();
+    const c = cols.find(x=>x.key===state.produto);
+    th.textContent = c ? c.lbl : "Produto";
+  } else {
+    th.textContent = "Produtos disponíveis";
+  }
+}
+
 function render(){
+  updateHeaders();
   const data = filtered();
   const sdata = sorted(data);
   const hosps = data.filter(d=>d.tipo==="hosp").length;
@@ -637,24 +1114,73 @@ function render(){
   } else {
     noR.style.display="none";
     tbody.innerHTML = pageData.map(d=>{
-      const tipo = d.tipo==="hosp"
-        ? `<span class="tipo-hosp">Hospital</span>`
-        : `<span class="tipo-lab">Lab</span>`;
-      const cobHtml = d.tipo==="hosp" && d.cob && state.produto!=="all"
-        ? buildCob(d.cob[state.produto]) : "";
+      // Determinar tipo real do prestador
+let tipoLabel, tipoClass;
+if(d.tipo==="lab"){
+  tipoLabel = "Lab"; tipoClass = "tipo-lab";
+} else {
+  // Verificar cobertura real ou nome para PS puro
+  const cob = d.cob || {};
+  const cobVals = Object.values(cob).join("-");
+  const nomeLower = d.n.toLowerCase();
+  const isPsOnly = (cobVals && !cobVals.includes("H") && cobVals.includes("PS"))
+    || nomeLower.includes("pronto atendimento")
+    || nomeLower.includes("pronto-atendimento")
+    || nomeLower.includes("pronto socorro")
+    || nomeLower.includes("pronto-socorro");
+  const hasMatern = cobVals.includes("M") || nomeLower.includes("maternidade");
+  const hasPs = cobVals.includes("PS") || nomeLower.includes("pronto");
+
+  if(isPsOnly){
+    tipoLabel = "Pronto-Socorro"; tipoClass = "tipo-ps";
+  } else if(hasMatern && hasPs){
+    tipoLabel = "H + M + PS"; tipoClass = "tipo-hm";
+  } else if(hasMatern){
+    tipoLabel = "H + Maternidade"; tipoClass = "tipo-hm";
+  } else if(hasPs){
+    tipoLabel = "H + PS"; tipoClass = "tipo-hps";
+  } else {
+    tipoLabel = "Hospital"; tipoClass = "tipo-hosp";
+  }
+}
+const tipo = `<span class="${tipoClass}">${tipoLabel}</span>`;
+      // Badge de estado
+      const estadoBadge = d.e==="RJ"
+        ? `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#fef3c7;color:#92400e;font-weight:600;margin-left:4px">RJ</span>`
+        : d.e==="NM"
+        ? `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#dcfce7;color:#166534;font-weight:600;margin-left:4px">NM</span>`
+        : `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:#ede9fe;color:#5b21b6;font-weight:600;margin-left:4px">SP</span>`;
+
+      // Coluna única de produtos: badges dos produtos que o prestador aceita
+      const cols = currentCols();
+      let prodCell;
+      if(state.produto!=="all"){
+        if(d.tipo==="hosp" && d.cob && d.cob[state.produto]){
+          prodCell = buildCob(d.cob[state.produto]||"–");
+        } else {
+          prodCell = d[state.produto] ? `<span class="prod-badge prod-on">Disponível</span>` : `<span class="dash">–</span>`;
+        }
+      } else {
+        const accepted = cols.filter(c=>d[c.key]);
+        if(accepted.length===0){
+          prodCell = `<span class="dash">–</span>`;
+        } else {
+          prodCell = accepted.map(c=>{
+            const cob = (d.tipo==="hosp" && d.cob && d.cob[c.key] && d.cob[c.key]!=="–") ? ` <span style="opacity:.6;font-size:9px">${d.cob[c.key]}</span>` : "";
+            return `<span class="prod-badge prod-on" title="${c.lbl}">${c.lbl}${cob}</span>`;
+          }).join(" ");
+        }
+      }
+
       return `<tr>
         <td>
-          <div style="font-weight:500;font-size:13px">${d.c}</div>
+          <div style="font-weight:500;font-size:13px">${d.c} ${state.estado==="all"?estadoBadge:""}</div>
         </td>
         <td>
           <div class="td-nome">${d.n}</div>
-          ${cobHtml?`<div style="margin-top:3px">${cobHtml}</div>`:""}
         </td>
         <td>${tipo}</td>
-        <td style="text-align:center">${d.nm?yn(1):yn(0)}</td>
-        <td style="text-align:center">${d.up?yn(1):yn(0)}</td>
-        <td style="text-align:center">${d.fx?yn(1):yn(0)}</td>
-        <td style="text-align:center">${d.pr?yn(1):yn(0)}</td>
+        <td style="text-align:left"><div style="display:flex;flex-wrap:wrap;gap:4px">${prodCell}</div></td>
       </tr>`;
     }).join("");
   }
@@ -682,11 +1208,12 @@ function render(){
 }
 
 function filtered_by_tab(tab){
-  const {produto, cidade, search} = state;
+  const {produto, estado, cidade, search} = state;
   return ALL.filter(d=>{
     if(tab==="hosp" && d.tipo!=="hosp") return false;
     if(tab==="lab"  && d.tipo!=="lab")  return false;
-    if(produto!=="all"){const map={nm:d.nm,up:d.up,fx:d.fx,pr:d.pr};if(!map[produto])return false;}
+    if(estado!=="all" && d.e!==estado) return false;
+    if(!prodMatch(d, produto)) return false;
     if(cidade!=="all"&&d.c!==cidade)return false;
     if(search&&!d.n.toLowerCase().includes(search))return false;
     return true;
@@ -731,27 +1258,34 @@ function updateCharts(data){
   // Tipo doughnut
   const hospN = data.filter(d=>d.tipo==="hosp").length;
   const labN  = data.filter(d=>d.tipo==="lab").length;
+  const spN = data.filter(d=>d.e==="SP").length;
+  const rjN = data.filter(d=>d.e==="RJ").length;
+  const nmN  = data.filter(d=>d.e==="NM").length;
+  const tipoLabels = state.estado==="all" ? ["Hospitais","Laboratórios","SP","RJ","NM"] : ["Hospitais","Laboratórios"];
+  const tipoData   = state.estado==="all" ? [hospN,labN,spN,rjN,nmN] : [hospN,labN];
+  const tipoCols   = state.estado==="all" ? ["#e55300","#1d9e75","#7f77dd","#f59e0b","#16a34a"] : ["#e55300","#1d9e75"];
   updateOrCreate("chart-tipo","doughnut",{
-    labels:["Hospitais","Laboratórios"],
-    datasets:[{data:[hospN,labN],backgroundColor:["#e55300","#1d9e75"],borderWidth:2,borderColor:"#fff"}]
-  },{plugins:{legend:{position:"bottom",labels:{font:{size:12},padding:12,boxWidth:12}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} (${Math.round(c.parsed/(hospN+labN||1)*100)}%)`}}}});
+    labels:tipoLabels,
+    datasets:[{data:tipoData,backgroundColor:tipoCols,borderWidth:2,borderColor:"#fff"}]
+  },{plugins:{legend:{position:"bottom",labels:{font:{size:11},padding:10,boxWidth:11}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed}`}}}});
 
-  // Produto bar
-  const prods = [
-    {label:"Nosso Médico",key:"nm",color:"#003087"},
-    {label:"Smart UP",key:"up",color:"#2563eb"},
-    {label:"Smart Flex",key:"fx",color:"#0f6e56"},
-    {label:"Smart Prime",key:"pr",color:"#e55300"},
-  ];
+  // Produto bar — dinâmico por estado
+  const prodsDef = state.estado==="RJ"
+    ? [{label:"Smart Rio",key:"sr",color:"#1d6fab"},{label:"Smart 300",key:"s3",color:"#2563eb"},{label:"Smart 500",key:"s5",color:"#0f6e56"},{label:"Smart Prime",key:"pr",color:"#e55300"}]
+    : state.estado==="SP"
+    ? [{label:"Nosso Médico",key:"nm",color:"#003087"},{label:"Smart UP",key:"up",color:"#2563eb"},{label:"Smart Flex",key:"fx",color:"#0f6e56"},{label:"Smart Prime",key:"pr",color:"#e55300"}]
+    : state.estado==="NM"
+    ? [{label:"Nosso Médico",key:"nm",color:"#16a34a"}]
+    : [{label:"Nosso Médico",key:"nm",color:"#003087"},{label:"Smart UP",key:"up",color:"#1d6fab"},{label:"Smart Flex",key:"fx",color:"#0f6e56"},{label:"Smart Rio",key:"sr",color:"#7f77dd"},{label:"Smart 300",key:"s3",color:"#2563eb"},{label:"Smart 500",key:"s5",color:"#059669"},{label:"Smart Prime",key:"pr",color:"#e55300"}];
   updateOrCreate("chart-produto","bar",{
-    labels: prods.map(p=>p.label),
+    labels: prodsDef.map(p=>p.label),
     datasets:[{
       label:"Prestadores",
-      data: prods.map(p=>data.filter(d=>d[p.key]).length),
-      backgroundColor: prods.map(p=>p.color),
+      data: prodsDef.map(p=>data.filter(d=>d[p.key]).length),
+      backgroundColor: prodsDef.map(p=>p.color),
       borderRadius:5
     }]
-  },{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:20}},x:{ticks:{font:{size:11}}}}});
+  },{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:20}},x:{ticks:{font:{size:10}}}}});
 
   // Top cidades
   const cityCount = {};
@@ -786,12 +1320,40 @@ function updateOrCreate(id, type, data, options={}, extra={}){
 // ─── SETUP ───────────────────────────────────────────────────────────────────
 function populateCidades(){
   const sel = document.getElementById("f-cidade");
-  const cidades = [...new Set(ALL.map(d=>d.c))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  // limpar opções existentes (manter "todas")
+  while(sel.options.length > 1) sel.remove(1);
+  const src = state.estado==="all" ? ALL : ALL.filter(d=>d.e===state.estado);
+  const cidades = [...new Set(src.map(d=>d.c))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
   cidades.forEach(c=>{
     const o = document.createElement("option");
     o.value=c; o.textContent=c;
     sel.appendChild(o);
   });
+}
+
+function updateProdutoOptions(){
+  const sel = document.getElementById("f-produto");
+  const spOpts = `<option value="all">Todos os produtos</option>
+    <option value="nm">Nosso Médico</option>
+    <option value="up">Smart UP</option>
+    <option value="fx">Smart Flex</option>
+    <option value="pr">Smart Prime</option>`;
+  const rjOpts = `<option value="all">Todos os produtos</option>
+    <option value="sr">Smart Rio</option>
+    <option value="s3">Smart 300</option>
+    <option value="s5">Smart 500</option>
+    <option value="pr">Smart Prime</option>`;
+  const nmOpts = `<option value="all">Todos os serviços</option>
+    <option value="nm">Nosso Médico</option>`;
+  const allOpts = `<option value="all">Todos os produtos</option>
+    <option value="nm">Nosso Médico</option>
+    <option value="up">Smart UP</option>
+    <option value="fx">Smart Flex</option>
+    <option value="sr">Smart Rio</option>
+    <option value="s3">Smart 300</option>
+    <option value="s5">Smart 500</option>
+    <option value="pr">Smart Prime</option>`;
+  sel.innerHTML = state.estado==="RJ" ? rjOpts : state.estado==="SP" ? spOpts : state.estado==="NM" ? nmOpts : allOpts;
 }
 
 function setTab(t){
@@ -808,18 +1370,32 @@ function sortBy(k){
 }
 
 function resetFilters(){
+  document.getElementById("f-estado").value="all";
   document.getElementById("f-produto").value="all";
   document.getElementById("f-cidade").value="all";
   document.getElementById("f-search").value="";
-  state.produto="all"; state.cidade="all"; state.search=""; state.page=0;
+  state.estado="all"; state.produto="all"; state.cidade="all"; state.search=""; state.page=0;
+  populateCidades();
+  updateProdutoOptions();
   render();
 }
 
+document.getElementById("f-estado").addEventListener("change",e=>{
+  state.estado=e.target.value;
+  state.page=0; state.cidade="all"; state.produto="all"; state.search="";
+  document.getElementById("f-cidade").value="all";
+  document.getElementById("f-produto").value="all";
+  document.getElementById("f-search").value="";
+  populateCidades();
+  updateProdutoOptions();
+  render();
+});
 document.getElementById("f-produto").addEventListener("change",e=>{state.produto=e.target.value;state.page=0;state.search="";document.getElementById("f-search").value="";render();});
 document.getElementById("f-cidade").addEventListener("change",e=>{state.cidade=e.target.value;state.page=0;state.search="";document.getElementById("f-search").value="";render();});
 document.getElementById("f-search").addEventListener("input",e=>{state.search=e.target.value.toLowerCase().trim();state.page=0;render();});
 
 populateCidades();
+updateProdutoOptions();
 render();
 </script>
 </body>
