@@ -1025,6 +1025,22 @@ const NM_LAB = [
 
 const ALL = [...HOSP, ...LAB, ...NM_HOSP, ...NM_LAB];
 
+// ── REGRA: prestadores com Smart Flex também presentes em Smart 300 e Smart 500 ──
+// (copia a mesma cobertura do Flex para os planos 300 e 500)
+ALL.forEach(d=>{
+  if(d.fx){
+    d.s3 = 1;
+    d.s5 = 1;
+    if(d.cob){
+      const cobFlex = d.cob.fx;
+      if(cobFlex && cobFlex!=="–"){
+        if(!d.cob.s3 || d.cob.s3==="–") d.cob.s3 = cobFlex;
+        if(!d.cob.s5 || d.cob.s5==="–") d.cob.s5 = cobFlex;
+      }
+    }
+  }
+});
+
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let state = {tab:"todos", produto:"all", estado:"all", cidade:"all", search:"", sortKey:"c", sortDir:1, page:0};
 const PAGE_SIZE = 50;
